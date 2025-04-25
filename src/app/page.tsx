@@ -135,7 +135,7 @@ export default function LandingPage() {
                 <motion.a
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  href="/login"
+                  href="/auth"
                   className="px-4 py-2 rounded-md text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 >
                   Login
@@ -143,7 +143,7 @@ export default function LandingPage() {
                 <motion.a
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  href="/signup"
+                  href="/auth"
                   className="px-4 py-2 rounded-md bg-[#006D77] hover:bg-[#006D77]/90 text-white transition-colors"
                 >
                   Sign Up
@@ -185,7 +185,7 @@ export default function LandingPage() {
               <motion.a
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                href="/signup"
+                href="/auth"
                 className="px-6 py-3 rounded-md bg-[#006D77] hover:bg-[#006D77]/90 text-white font-medium transition-colors flex items-center justify-center"
               >
                 Get Started <ChevronRight size={18} className="ml-1" />

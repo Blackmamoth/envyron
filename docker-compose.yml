@@ -1,0 +1,20 @@
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: postgres_envyron_dev
+    restart: always
+    env_file:
+        - .env 
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_envyron_dev:/var/lib/postgresql/data
+    networks:
+      - envyron-dev
+
+volumes:
+  postgres_envyron_dev:
+
+networks:
+  envyron-dev:
+    driver: bridge
