@@ -6,27 +6,10 @@ import { motion } from "framer-motion"
 import { Moon, Sun, ChevronRight, Code, Database, Lock, Zap } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { FaGithub, FaXTwitter } from "react-icons/fa6"
+import { useTheme } from "next-themes"
 
 export default function LandingPage() {
-  const [theme, setTheme] = useState<"light" | "dark">("dark")
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    setMounted(true)
-    const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null
-    if (savedTheme) {
-      setTheme(savedTheme)
-    } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      setTheme("dark")
-    }
-  }, [])
-
-  useEffect(() => {
-    if (mounted) {
-      document.documentElement.classList.toggle("dark", theme === "dark")
-      localStorage.setItem("theme", theme)
-    }
-  }, [theme, mounted])
+  const { theme, setTheme } = useTheme()
 
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark")

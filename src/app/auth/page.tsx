@@ -15,6 +15,7 @@ import { z } from "zod"
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner"
 import { useRouter } from "next/navigation";
+import { useTheme } from "next-themes"
 
 const loginSchema = z.object({
   email: z.string().email({ message: "please provide a valid email address" }),
@@ -40,28 +41,11 @@ type LoginSchema = z.infer<typeof loginSchema>
 type RegisterSchema = z.infer<typeof registerSchema>
 
 export default function AuthPage() {
-  const [theme, setTheme] = useState<"light" | "dark">("dark");
-  const [mounted, setMounted] = useState(false);
   const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-    const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
-    if (savedTheme) {
-      setTheme(savedTheme);
-    } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      setTheme("dark");
-    }
-  }, []);
-
-  useEffect(() => {
-    if (mounted) {
-      document.documentElement.classList.toggle("dark", theme === "dark");
-      localStorage.setItem("theme", theme);
-    }
-  }, [theme, mounted]);
+  const { theme, setTheme } = useTheme()
 
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");

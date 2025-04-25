@@ -5,27 +5,11 @@ import { motion } from "framer-motion"
 import { Moon, Sun, Home, ArrowLeft, FileCode2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
+import { useTheme } from "next-themes"
 
 export default function NotFoundPage() {
-  const [theme, setTheme] = useState<"light" | "dark">("dark")
-  const [mounted, setMounted] = useState(false)
 
-  useEffect(() => {
-    setMounted(true)
-    const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null
-    if (savedTheme) {
-      setTheme(savedTheme)
-    } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      setTheme("dark")
-    }
-  }, [])
-
-  useEffect(() => {
-    if (mounted) {
-      document.documentElement.classList.toggle("dark", theme === "dark")
-      localStorage.setItem("theme", theme)
-    }
-  }, [theme, mounted])
+  const { setTheme, theme } = useTheme()
 
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark")
