@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   ChevronDown,
@@ -14,7 +14,6 @@ import {
   Globe,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { useTheme } from "next-themes"
 
 type Service = {
   id: string

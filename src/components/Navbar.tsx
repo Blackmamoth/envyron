@@ -9,16 +9,16 @@ import {
   ChevronDown,
   Database,
   Server,
-  User,
-  Settings,
   Menu,
   X,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useTheme } from "next-themes"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
+import { authClient } from "@/lib/auth-client"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export function Navbar() {
   const [userMenuOpen, setUserMenuOpen] = useState(false)
@@ -35,6 +35,18 @@ export function Navbar() {
   ]
 
   const pathname = usePathname()
+
+  const router = useRouter()
+
+  const { data, isPending } = authClient.useSession()
+
+  useEffect(() => {
+    if (!isPending) {
+      if (!data?.user && !data?.session) {
+        router.push("/auth")
+      }
+    }
+  }, [isPending, data?.user, data?.session])
 
   return (
     <>
@@ -146,9 +158,12 @@ export function Navbar() {
                   className="flex items-center space-x-2 p-1 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
                 >
                   <div className="w-8 h-8 rounded-full bg-[#006D77] dark:bg-[#83C5BE] flex items-center justify-center text-white">
-                    <User size={16} />
+
+                    <Avatar>
+                      <AvatarImage src={data?.user?.image || ""} />
+                      <AvatarFallback>{data?.user.name.split(" ").map(word => word[0])}</AvatarFallback>
+                    </Avatar>
                   </div>
-                  <span className="hidden md:inline-block text-sm font-medium">John Doe</span>
                   <ChevronDown size={16} className={cn("transition-transform", userMenuOpen ? "rotate-180" : "")} />
                 </button>
 
@@ -161,25 +176,15 @@ export function Navbar() {
                       transition={{ duration: 0.2 }}
                       className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 py-1 z-50"
                     >
-                      <Link
-                        href="/profile"
-                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      >
-                        Profile
-                      </Link>
-                      <Link
-                        href="/settings"
-                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                      >
-                        Settings
-                      </Link>
-                      <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
-                      <Link
-                        href="/logout"
-                        className="block px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+
+                      <button
+                        type="button"
+                        onClick={() => authClient.signOut()}
+                        className="block w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-100 dark:hover:bg-gray-700"
                       >
                         Logout
-                      </Link>
+                      </button>
+
                     </motion.div>
                   )}
                 </AnimatePresence>
