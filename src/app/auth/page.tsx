@@ -62,7 +62,6 @@ export default function AuthPage() {
   const password = registerForm.watch("password")
 
   const handleLogin = async ({ email, password, rememberMe }: LoginSchema) => {
-    console.log(rememberMe)
     await authClient.signIn.email({ email, password, rememberMe: rememberMe }, {
       onRequest: () => setIsLoading(true),
       onSuccess: () => {
@@ -111,7 +110,6 @@ export default function AuthPage() {
 
   const getPasswordStrength = (password: string) => {
     if (typeof password !== "string") return 0;
-    console.log("here")
 
     let strength = 0;
 
