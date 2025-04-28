@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -8,94 +8,28 @@ import {
   ChevronDown,
   ChevronRight,
   Database,
-  Lock,
   Edit,
   Trash2,
   Plus,
   X,
-  Globe,
+  Package,
 } from "lucide-react";
 import { cn, timeAgo } from "@/lib/utils";
 import { useFieldArray, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { serviceSchema, ServiceSchema } from "@/lib/validations";
 import { toast } from "sonner";
-import { useServiceStore } from "@/lib/store";
-
-type Service = {
-  id: string;
-  name: string;
-  icon: React.ReactNode;
-  variables: Variable[];
-  lastModified: string;
-};
-
-type Variable = {
-  key: string;
-  value: string;
-  required: boolean;
-};
+import { Service, useServiceStore } from "@/lib/store";
 
 export default function ServicesPage() {
   const [modalOpen, setModalOpen] = useState(false);
-  const [expandedService, setExpandedService] = useState<string | null>(null);
-  const [variables, setVariables] = useState<Variable[]>([
-    { key: "", value: "", required: true },
-  ]);
-  // const [services, setServices] = useState<Service[]>([
-  //   {
-  //     id: "postgres",
-  //     name: "PostgreSQL",
-  //     icon: <Database size={18} />,
-  //     variables: [
-  //       { key: "POSTGRES_USER", value: "admin", required: true },
-  //       { key: "POSTGRES_PASSWORD", value: "secure_password", required: true },
-  //       { key: "POSTGRES_HOST", value: "localhost", required: true },
-  //       { key: "POSTGRES_PORT", value: "5432", required: true },
-  //       { key: "POSTGRES_DB", value: "myapp", required: true },
-  //     ],
-  //     lastModified: "2 days ago",
-  //   },
-  //   {
-  //     id: "redis",
-  //     name: "Redis",
-  //     icon: <Database size={18} />,
-  //     variables: [
-  //       { key: "REDIS_HOST", value: "localhost", required: true },
-  //       { key: "REDIS_PORT", value: "6379", required: true },
-  //       { key: "REDIS_PASSWORD", value: "", required: false },
-  //     ],
-  //     lastModified: "1 week ago",
-  //   },
-  //   {
-  //     id: "auth",
-  //     name: "Authentication",
-  //     icon: <Lock size={18} />,
-  //     variables: [
-  //       { key: "JWT_SECRET", value: "your_jwt_secret", required: true },
-  //       { key: "JWT_EXPIRES_IN", value: "7d", required: false },
-  //       {
-  //         key: "REFRESH_TOKEN_SECRET",
-  //         value: "your_refresh_token_secret",
-  //         required: true,
-  //       },
-  //     ],
-  //     lastModified: "3 days ago",
-  //   },
-  //   {
-  //     id: "api",
-  //     name: "External API",
-  //     icon: <Globe size={18} />,
-  //     variables: [
-  //       { key: "API_URL", value: "https://api.example.com", required: true },
-  //       { key: "API_KEY", value: "your_api_key", required: true },
-  //       { key: "API_VERSION", value: "v1", required: false },
-  //     ],
-  //     lastModified: "1 day ago",
-  //   },
-  // ]);
+  const [expandedServices, setExpandedServices] = useState<
+    Record<string, boolean>
+  >({});
 
-  const services = useServiceStore(state => state.services)
+  const services = useServiceStore(state => state.services);
+
+  const getServices = useServiceStore(state => state.getServices)
 
   const serviceForm = useForm<ServiceSchema>({
     resolver: zodResolver(serviceSchema),
@@ -111,24 +45,71 @@ export default function ServicesPage() {
     rules: { minLength: 1 },
   });
 
+  const addNewService = async ({ name, variables }: ServiceSchema) => {
+    const request = await fetch("/api/service", {
+      method: "POST",
+      body: JSON.stringify({ name, variables }),
+    });
+    const response = await request.json();
+    if (request.status !== 200) {
+      toast.error(response.message);
+    } else {
+      toast.success(response.message);
+    }
+  };
+
+  const addNewVariables = async (
+    service: Service,
+    variables: { key: string; required?: boolean | undefined }[],
+  ) => {
+    const request = await fetch("/api/variables", {
+      method: "PUT",
+      body: JSON.stringify({ service_id: service.id, variables }),
+    });
+    const response = await request.json();
+    if (request.status !== 200) {
+      toast.error(response.message);
+    } else {
+      toast.success(response.message);
+    }
+  };
+
+  const editService = async (
+    service: Service,
+    { name, variables }: ServiceSchema,
+  ) => {
+
+    const request = await fetch("/api/service", {
+      method: "PUT",
+      body: JSON.stringify({ service_id: service.id, name, variables }),
+    });
+
+    const response = await request.json();
+    if (request.status !== 200) {
+      toast.error(response.message);
+    } else {
+      toast.success(response.message);
+    }
+  };
+
   const handleAddService = async ({ name, variables }: ServiceSchema) => {
     try {
       setLoading(true);
-      const request = await fetch("/api/service", {
-        method: "POST",
-        body: JSON.stringify({ name, variables }),
-      });
-      const response = await request.json();
-      if (request.status !== 200) {
-        toast.error(response.message);
+      if (editingService && currentService) {
+        await editService(currentService, { name, variables });
+      } else if (currentService) {
+        await addNewVariables(currentService, variables);
+        setCurrentService(null);
       } else {
-        toast.success(response.message);
+        await addNewService({ name, variables });
       }
-    } catch (error) {
+    } catch (error: unknown) {
+      console.error(error);
       toast.error(
         "an error occured while saving your service, please try again later",
       );
     } finally {
+      await getServices()
       setModalOpen(false);
       setLoading(false);
       serviceForm.reset();
@@ -137,13 +118,15 @@ export default function ServicesPage() {
 
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [serviceToDelete, setServiceToDelete] = useState<string | null>(null);
-  const [editingService, setEditingService] = useState<Service | null>(null);
-  const [newServiceName, setNewServiceName] = useState("");
-  const [currentServiceId, setCurrentServiceId] = useState<string | null>(null);
+  const [editingService, setEditingService] = useState(false);
+  const [currentService, setCurrentService] = useState<Service | null>(null);
   const [loading, setLoading] = useState(false);
 
   const toggleExpanded = (id: string) => {
-    setExpandedService(expandedService === id ? null : id);
+    setExpandedServices((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
   };
 
   const container = {
@@ -151,6 +134,7 @@ export default function ServicesPage() {
     show: {
       opacity: 1,
       transition: {
+        opacity: { duration: 0.5 },
         staggerChildren: 0.1,
       },
     },
@@ -161,15 +145,9 @@ export default function ServicesPage() {
     show: { opacity: 1, y: 0 },
   };
 
-  const handleAddVariables = (serviceId: string) => {
-    setCurrentServiceId(serviceId);
-    setVariables([{ key: "", value: "", required: true }]);
-    setModalOpen(true);
-  };
-
-  const handleEditService = (service: Service) => {
-    setEditingService(service);
-    setVariables([...service.variables]);
+  const handleAddVariables = (service: Service) => {
+    setCurrentService(service)
+    serviceForm.setValue("name", service.name);
     setModalOpen(true);
   };
 
@@ -178,66 +156,68 @@ export default function ServicesPage() {
     setDeleteConfirmOpen(true);
   };
 
-  const confirmDeleteService = () => {
-    if (serviceToDelete) {
-      setServices(services.filter((service) => service.id !== serviceToDelete));
-      setDeleteConfirmOpen(false);
-      setServiceToDelete(null);
+  const confirmDeleteService = async () => {
+    try {
+      if (!serviceToDelete) {
+        return
+      }
+      const request = await fetch("/api/service", {
+        method: "DELETE",
+        body: JSON.stringify({ service_id: serviceToDelete })
+      })
+      const response = await request.json()
+      if (request.status !== 200) {
+        toast.error(response.message)
+      } else {
+        toast.success(response.message)
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error(
+        "an error occured while deleting your service, please try again later",
+      );
+    } finally {
+      await getServices()
+      setDeleteConfirmOpen(false)
+      setServiceToDelete(null)
     }
+    // if (serviceToDelete) {
+    //   const request = await fetch("/api/")
+    //   setDeleteConfirmOpen(false);
+    //   setServiceToDelete(null);
+    // }
   };
 
-  const isFormValid = () => {
-    if (!currentServiceId && !editingService && !newServiceName.trim()) {
-      return false;
-    }
+  const handleEditService = (service: Service) => {
 
-    return variables.every((variable) => variable.key.trim() !== "");
+    const existingVariables = service.variables.map((variable) => ({
+      id: variable.id,
+      key: variable.key,
+      required: variable.required,
+      serviceId: variable.serviceId,
+    }));
+
+    serviceForm.setValue("name", service.name);
+    serviceForm.setValue("variables", existingVariables);
+    setEditingService(true);
+    setCurrentService(service);
+    setModalOpen(true);
   };
 
-  // const handleSaveService = () => {
-  //   if (editingService) {
-  //     // Update existing service
-  //     setServices(
-  //       services.map((service) =>
-  //         service.id === editingService.id
-  //           ? { ...editingService, variables, lastModified: "just now" }
-  //           : service,
-  //       ),
-  //     );
-  //   } else if (currentServiceId) {
-  //     // Add variables to existing service
-  //     setServices(
-  //       services.map((service) =>
-  //         service.id === currentServiceId
-  //           ? {
-  //               ...service,
-  //               variables: [
-  //                 ...service.variables,
-  //                 ...variables.filter((v) => v.key.trim() !== ""),
-  //               ],
-  //               lastModified: "just now",
-  //             }
-  //           : service,
-  //       ),
-  //     );
-  //   } else {
-  //     // Create new service
-  //     const newService: Service = {
-  //       id: Date.now().toString(),
-  //       name: newServiceName,
-  //       icon: <Database size={18} />,
-  //       variables: variables.filter((v) => v.key.trim() !== ""),
-  //       lastModified: "just now",
-  //     };
-  //     setServices([...services, newService]);
-  //   }
+  const onCloseModal = () => {
+    serviceForm.reset();
+    setCurrentService(null);
+    setEditingService(false);
+    setModalOpen(false);
+  };
 
-  //   setModalOpen(false);
-  //   setEditingService(null);
-  //   setCurrentServiceId(null);
-  //   setNewServiceName("");
-  //   setVariables([{ key: "", value: "", required: true }]);
-  // };
+  const toggleRequired = (index: number) => {
+    const currentVariables = serviceForm.getValues("variables")[index]
+    update(index, {
+      ...currentVariables,
+      required: !currentVariables.required,
+    })
+  }
 
   return (
     <>
@@ -262,15 +242,12 @@ export default function ServicesPage() {
                 <h3 className="text-lg font-medium text-gray-900 dark:text-white">
                   {editingService
                     ? "Edit Service"
-                    : currentServiceId
+                    : currentService
                       ? "Add Variables"
                       : "Add New Service"}
                 </h3>
                 <button
-                  onClick={() => {
-                    setModalOpen(false);
-                    serviceForm.reset();
-                  }}
+                  onClick={onCloseModal}
                   className="p-1 rounded-md text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                 >
                   <X size={20} />
@@ -279,7 +256,7 @@ export default function ServicesPage() {
               <form onSubmit={serviceForm.handleSubmit(handleAddService)}>
                 <div className="p-4 max-h-[70vh] overflow-y-auto">
                   {/* Service Name Input (only for new service or editing service) */}
-                  {!currentServiceId && (
+                  {(editingService || !currentService) && (
                     <div className="mb-6">
                       <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                         Service Name <span className="text-red-500">*</span>
@@ -324,13 +301,8 @@ export default function ServicesPage() {
                             <motion.div
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
-                              onClick={() =>
-                                update(index, {
-                                  required: !variable.required,
-                                  key: variable.key,
-                                })
-                              }
-                              value={variable.required}
+                              onClick={() => toggleRequired(index)}
+                              value={variable.required ?? false}
                               className={cn(
                                 "w-8 h-4 rounded-full relative cursor-pointer transition-colors",
                                 variable.required
@@ -364,7 +336,7 @@ export default function ServicesPage() {
                       </motion.div>
                     ))}
                   </div>
-                  <motion.button
+                  {!editingService && (<motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => append({ key: "", required: false })}
@@ -372,17 +344,14 @@ export default function ServicesPage() {
                   >
                     <Plus size={16} className="mr-1" />
                     Add Another Variable
-                  </motion.button>
+                  </motion.button>)}
                 </div>
                 <div className="p-4 border-t border-gray-200 dark:border-gray-700 flex justify-end space-x-3">
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     type="button"
-                    onClick={() => {
-                      setModalOpen(false);
-                      serviceForm.reset();
-                    }}
+                    onClick={onCloseModal}
                     className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                   >
                     Cancel
@@ -396,7 +365,7 @@ export default function ServicesPage() {
                   >
                     {editingService
                       ? "Update Service"
-                      : currentServiceId
+                      : currentService
                         ? "Add Variables"
                         : "Create Service"}
                   </motion.button>
@@ -490,7 +459,7 @@ export default function ServicesPage() {
           </motion.button>
         </div>
 
-        {services.length === 0 ? (
+        {services?.length === 0 ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -522,21 +491,21 @@ export default function ServicesPage() {
         ) : (
           <motion.div
             variants={container}
-            initial="hidden"
             animate="show"
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
           >
-            {services.map((service) => (
+            {services?.map((service) => (
               <motion.div
                 key={service.id}
                 variants={item}
+                layout
                 className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden"
               >
                 <div className="p-4">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center">
                       <div className="w-10 h-10 rounded-full bg-[#83C5BE]/20 flex items-center justify-center text-[#006D77] dark:text-[#83C5BE] mr-3">
-                        {/* {service.icon} */}
+                        <Package />
                       </div>
                       <div>
                         <h3 className="font-medium text-gray-900 dark:text-white">
@@ -551,7 +520,7 @@ export default function ServicesPage() {
                       <motion.button
                         whileHover={{ scale: 1.1 }}
                         whileTap={{ scale: 0.9 }}
-                        // onClick={() => handleEditService(service)}
+                        onClick={() => handleEditService(service)}
                         className="p-1 rounded-md text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
                       >
                         <Edit size={16} />
@@ -576,7 +545,7 @@ export default function ServicesPage() {
                       onClick={() => toggleExpanded(service.id)}
                       className="text-xs text-[#006D77] dark:text-[#83C5BE] hover:underline flex items-center"
                     >
-                      {expandedService === service.id ? (
+                      {expandedServices[service.id] ? (
                         <>
                           Hide Details{" "}
                           <ChevronDown size={14} className="ml-1" />
@@ -591,9 +560,10 @@ export default function ServicesPage() {
                   </div>
                 </div>
 
-                <AnimatePresence>
-                  {expandedService === service.id && (
+                <AnimatePresence initial={false}>
+                  {expandedServices[service.id] && (
                     <motion.div
+                      key={"expandable"}
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
@@ -608,7 +578,7 @@ export default function ServicesPage() {
                           <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
-                            onClick={() => handleAddVariables(service.id)}
+                            onClick={() => handleAddVariables(service)}
                             className="text-xs text-[#006D77] dark:text-[#83C5BE] hover:underline flex items-center"
                           >
                             <Plus size={14} className="mr-1" />

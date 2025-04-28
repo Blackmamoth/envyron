@@ -22,7 +22,7 @@ const loginSchema = z.object({
   password: z.string()
     .min(8, "password should consist of minimum 8 characters")
     .max(16, "password should consist of maximum 16 characters"),
-  rememberMe: z.boolean().default(false),
+  rememberMe: z.boolean().default(false).optional(),
 })
 
 const registerSchema = z.object({
@@ -151,7 +151,7 @@ export default function AuthPage() {
   useEffect(() => {
     loginForm.reset()
     registerForm.reset()
-  }, [activeTab])
+  }, [activeTab, loginForm, registerForm])
 
   return (
     <div

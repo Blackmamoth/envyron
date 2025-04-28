@@ -4,8 +4,12 @@ import httpErrors from "http-errors";
 import { ZodSchema } from "zod";
 import { db } from "@/db";
 import { env, service } from "@/db/schema";
-import { and, eq, inArray } from "drizzle-orm";
-import { VariableSchema } from "./validations";
+import { and, eq, inArray, ne, notInArray } from "drizzle-orm";
+import {
+  AddNewVariablesSchema,
+  EditServiceSchema,
+  VariableSchema,
+} from "./validations";
 import { EnvVariable, Service } from "./store";
 
 export const getUserFromSession = async () => {
@@ -20,7 +24,7 @@ export const getUserFromSession = async () => {
 
 export const validateRequestBody = async <T>(
   body: object,
-  schema: ZodSchema<T, any>,
+  schema: ZodSchema<T>,
 ) => {
   const result = schema.safeParse(body);
   if (!result.success && !result.data) {
@@ -78,7 +82,7 @@ export const addVariables = async (
     .values(insertValue)
     .returning({ insertId: env.id });
 
-  return result;
+  return result.map((r) => r.insertId);
 };
 
 export const getEnvVariables = async (userId: string) => {
@@ -86,7 +90,8 @@ export const getEnvVariables = async (userId: string) => {
     .select()
     .from(service)
     .leftJoin(env, eq(service.id, env.serviceId))
-    .where(eq(service.userId, userId));
+    .where(eq(service.userId, userId))
+    .orderBy(env.createdAt);
 
   const serviceMap = new Map<string, Service>();
 
@@ -120,4 +125,143 @@ export const getEnvVariables = async (userId: string) => {
   }
 
   return Array.from(serviceMap.values()) as Service[];
+};
+
+const getServiceById = async (serviceId: string, userId: string) => {
+  const existingService = await db
+    .select()
+    .from(service)
+    .where(and(eq(service.id, serviceId), eq(service.userId, userId)));
+
+  if (existingService.length === 0) {
+    return null;
+  }
+
+  return existingService[0];
+};
+
+export const addNewVariables = async (
+  userId: string,
+  { service_id, variables }: AddNewVariablesSchema,
+) => {
+  const existingService = await getServiceById(service_id, userId);
+
+  if (!existingService) {
+    throw httpErrors.Conflict(`Service [${service_id}] not found`);
+  }
+
+  return await addVariables(variables, service_id);
+};
+
+export const editService = async (
+  userId: string,
+  { name, variables, service_id }: EditServiceSchema,
+) => {
+  const existingService = await getServiceById(service_id, userId);
+
+  if (!existingService) {
+    throw httpErrors.Conflict(`Service [${service_id}] not found`);
+  }
+
+  const existingServiceWithSameName = await db
+    .select()
+    .from(service)
+    .where(
+      and(
+        eq(service.name, name),
+        eq(service.userId, userId),
+        ne(service.id, service_id),
+      ),
+    );
+
+  await db.transaction(async (tx) => {
+    if (existingServiceWithSameName.length === 0) {
+      await tx
+        .update(service)
+        .set({ name })
+        .where(
+          and(eq(service.id, existingService.id), eq(service.userId, userId)),
+        );
+    }
+
+    const varIds = variables.map((variable) => variable.id!);
+
+    await tx
+      .delete(env)
+      .where(
+        and(eq(env.serviceId, existingService.id), notInArray(env.id, varIds)),
+      );
+
+    await Promise.all(
+      variables.map(async (variableObj) => {
+        const variable = await tx
+          .select()
+          .from(env)
+          .where(
+            and(
+              eq(env.id, variableObj.id!),
+              eq(env.serviceId, variableObj.serviceId!),
+            ),
+          );
+
+        if (variable.length === 0) {
+          throw new httpErrors.Conflict(
+            `Variable [${variableObj.id}] does not exist`,
+          );
+        }
+
+        const envVar = variable[0];
+
+        const hasNewChange =
+          envVar.key !== variableObj.key ||
+          envVar.required !== variableObj.required;
+
+        if (hasNewChange) {
+          const checkKey = await tx
+            .select()
+            .from(env)
+            .where(
+              and(
+                eq(env.key, variableObj.key),
+                eq(env.serviceId, variableObj.serviceId!),
+                ne(env.id, variableObj.id!),
+              ),
+            );
+
+          if (checkKey.length !== 0) {
+            throw httpErrors.Conflict(
+              `There already exist a variable with key [${variableObj.key}] in service [${existingService.name}]`,
+            );
+          }
+
+          await tx
+            .update(env)
+            .set({ key: variableObj.key, required: variableObj.required })
+            .where(
+              and(
+                eq(env.serviceId, variableObj.serviceId!),
+                eq(env.id, variableObj.id!),
+              ),
+            );
+        }
+      }),
+    );
+  });
+};
+
+export const deleteService = async (serviceId: string, userId: string) => {
+  const existingService = await getServiceById(serviceId, userId);
+  if (!existingService) {
+    throw httpErrors.Conflict(`Service [${serviceId}] does not exist`);
+  }
+
+  await db.delete(env).where(eq(env.serviceId, existingService.id));
+  await db
+    .delete(service)
+    .where(
+      and(
+        eq(service.id, existingService.id),
+        eq(service.userId, existingService.userId),
+      ),
+    );
 };

@@ -46,7 +46,7 @@ export function Navbar() {
         router.push("/auth")
       }
     }
-  }, [isPending, data?.user, data?.session])
+  }, [isPending, data?.user, data?.session, router])
 
   return (
     <>

@@ -1,7 +1,6 @@
 
 "use client"
 
-import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { Moon, Sun, ChevronRight, Code, Database, Lock, Zap } from "lucide-react"
 import { cn } from "@/lib/utils"
