@@ -20,7 +20,7 @@ export const generateEnvContent = (
   if (services) {
     services.forEach((service) => {
       if (activeServices[service.id]) {
-        content += `# ${service.name}\n`;
+        content += `# ${service.name} Configuration\n`;
         service.variables.forEach((variable) => {
           content += `${variable.key}=\n`;
         });
@@ -31,43 +31,112 @@ export const generateEnvContent = (
   return content.trim();
 };
 
-export const generatePythonCode = (envVars: EnvVariable[]) => {
-  return `import os
-from dotenv import load_dotenv
+export const generatePythonCode = (
+  serviceVars: Record<string, EnvVariable[]>,
+) => {
+  const services = Object.keys(serviceVars);
+  let code = `
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
-# Load environment variables from .env file
-load_dotenv()
+${services.map(
+  (s) => `
+class ${s}Schema(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", case_sensitive=True)
+    ${serviceVars[s].map(
+      (v) => `
+    ${v.key}: ${v.required ? "str" : "Optional[str]"} `,
+    )}
+`,
+)}
+`;
 
-# Access environment variables
-${envVars.map((v) => `${v.key} = os.getenv("${v.key}")`).join("\n")}`;
+  code += `\n
+${services.map(
+  (s) => `
+${s}Config = ${s}Schema()
+`,
+)}
+`;
+
+  return code.replaceAll(",", "");
 };
 
-export const generateJSCode = (envVars: EnvVariable[]) => {
-  return `// Using dotenv with Node.js
-require('dotenv').config()
+export const generateJSCode = (serviceVars: Record<string, EnvVariable[]>) => {
+  const services = Object.keys(serviceVars);
 
-// Access environment variables
-${envVars.map((v) => `const ${v.key.toLowerCase()} = process.env.${v.key}`).join("\n")}`;
+  let code = `
+import { z } from 'zod'
+import 'dotenv/config'
+
+
+${services.map(
+  (s) => `
+const ${s}Schema = z.object({
+${serviceVars[s].map(
+  (v) => `   ${v.key}: z.string()${!v.required ? ".optional()" : ""},\n`,
+)}
+})
+`,
+)}
+`;
+
+  code += `
+${services.map(
+  (s) => `\n
+export const ${s}Config = ${s}Schema.parse(process.env)
+`,
+)}
+`;
+
+  return code.replace(/^,/gm, "");
 };
 
-export const generateGolangCode = (envVars: EnvVariable[]) => {
-  return `package main
+export const generateGolangCode = (
+  serviceVars: Record<string, EnvVariable[]>,
+) => {
+  const services = Object.keys(serviceVars);
+
+  let code = `
+package config
 
 import (
-\t"fmt"
-\t"os"
+        "log"
+        "os"
 
-\t"github.com/joho/godotenv"
+        "github.com/joho/godotenv"
+        "github.com/kelseyhightower/envconfig"
 )
 
-func main() {
-\t// Load environment variables from .env file
-\terr := godotenv.Load()
-\tif err != nil {
-\t\tfmt.Println("Error loading .env file")
-\t}
+${services.map(
+  (s) => `
+type ${s}Configuration struct {
+${serviceVars[s].map(
+  (v) =>
+    `   ${v.key} string \`envconfig:"ENVIRONMENT" ${v.required ? 'required:"true"' : ""}\`\n`,
+)}}
+`,
+)}
+`;
 
-\t// Access environment variables
-${envVars.map((v) => `\t${v.key.toLowerCase()} := os.Getenv("${v.key}")`).join("\n")}
-}`;
+  code += `
+var (
+${services.map(
+  (s) => `    ${s}Config ${s}Configuration
+`,
+)})
+`;
+
+  code += `
+func init() {
+${services.map(
+  (s) => `
+    if err := envconfig.Process("", &${s}Config); err != nil {
+      log.Fatalf("An error occured while loading environment variables: %v", err)
+    }
+`,
+)}
+}
+`;
+
+  return code.replace(/^,/gm, "").replace(/,$/gm, "");
 };

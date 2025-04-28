@@ -12,7 +12,7 @@ import {
   Package,
 } from "lucide-react"
 import { cn, generateEnvContent, generateGolangCode, generateJSCode, generatePythonCode } from "@/lib/utils"
-import { Service, useServiceStore } from "@/lib/store"
+import { EnvVariable, Service, useServiceStore } from "@/lib/store"
 
 
 export default function DashboardPage() {
@@ -56,8 +56,13 @@ export default function DashboardPage() {
 
 
   const handleCopy = () => {
-    const envContent = generateEnvContent(localServices, activeServices)
-    navigator.clipboard.writeText(envContent)
+    if (activeTab === "env") {
+      const envContent = generateEnvContent(localServices, activeServices)
+      navigator.clipboard.writeText(envContent)
+    } else {
+      const codeContent = getCodeContent()
+      navigator.clipboard.writeText(codeContent)
+    }
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
@@ -66,15 +71,21 @@ export default function DashboardPage() {
 
   const getCodeContent = () => {
     const activeServicesArr = services.filter((s) => activeServices[s.id] === true)
-    const envVars = activeServicesArr.flatMap((service) => service.variables)
+
+
+    const serviceVariablesMap: Record<string, EnvVariable[]> = {};
+    activeServicesArr.forEach(service => {
+      serviceVariablesMap[service.name] = service.variables;
+    });
+
 
     switch (activeTab) {
       case "python":
-        return generatePythonCode(envVars)
+        return generatePythonCode(serviceVariablesMap)
       case "js":
-        return generateJSCode(envVars)
+        return generateJSCode(serviceVariablesMap)
       case "go":
-        return generateGolangCode(envVars)
+        return generateGolangCode(serviceVariablesMap)
       default:
         return generateEnvContent(localServices, activeServices)
     }
@@ -275,7 +286,7 @@ export default function DashboardPage() {
                       : "text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white",
                   )}
                 >
-                  JavaScript
+                  JS/TS
                 </button>
                 <button
                   onClick={() => setActiveTab("go")}
