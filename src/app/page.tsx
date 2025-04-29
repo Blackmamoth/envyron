@@ -6,6 +6,7 @@ import { Moon, Sun, ChevronRight, Code, Database, Lock, Zap } from "lucide-react
 import { cn } from "@/lib/utils"
 import { FaGithub, FaXTwitter } from "react-icons/fa6"
 import { useTheme } from "next-themes"
+import { authClient } from "@/lib/auth-client"
 
 export default function LandingPage() {
   const { theme, setTheme } = useTheme()
@@ -13,6 +14,8 @@ export default function LandingPage() {
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark")
   }
+
+  const { data } = authClient.useSession()
 
   const container = {
     hidden: { opacity: 0 },
@@ -55,6 +58,7 @@ export default function LandingPage() {
       },
     },
   }
+
 
   return (
     <div
@@ -113,11 +117,11 @@ export default function LandingPage() {
               >
                 {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
               </motion.button>
-              <div className="hidden sm:flex space-x-3">
+              {!data?.user && <div className="hidden sm:flex space-x-3">
                 <motion.a
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  href="/auth"
+                  href="/auth?tab=signin"
                   className="px-4 py-2 rounded-md text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                 >
                   Login
@@ -125,12 +129,13 @@ export default function LandingPage() {
                 <motion.a
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  href="/auth"
+                  href="/auth?tab=signup"
                   className="px-4 py-2 rounded-md bg-[#006D77] hover:bg-[#006D77]/90 text-white transition-colors"
                 >
                   Sign Up
                 </motion.a>
               </div>
+              }
             </div>
           </div>
         </div>
@@ -167,7 +172,7 @@ export default function LandingPage() {
               <motion.a
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                href="/auth"
+                href={data?.user ? "/dashboard" : "/auth"}
                 className="px-6 py-3 rounded-md bg-[#006D77] hover:bg-[#006D77]/90 text-white font-medium transition-colors flex items-center justify-center"
               >
                 Get Started <ChevronRight size={18} className="ml-1" />
@@ -255,11 +260,11 @@ export default function LandingPage() {
                     >
                       <div className="text-gray-700 dark:text-gray-300 text-left">
                         <div># PostgreSQL</div>
-                        <div className="text-[#006D77] dark:text-[#83C5BE]">POSTGRES_USER=admin</div>
-                        <div className="text-[#006D77] dark:text-[#83C5BE]">POSTGRES_PASSWORD=********</div>
-                        <div className="text-[#006D77] dark:text-[#83C5BE]">POSTGRES_HOST=localhost</div>
-                        <div className="text-[#006D77] dark:text-[#83C5BE]">POSTGRES_PORT=5432</div>
-                        <div className="text-[#006D77] dark:text-[#83C5BE]">POSTGRES_DB=myapp</div>
+                        <div className="text-[#006D77] dark:text-[#83C5BE]">POSTGRES_USER=</div>
+                        <div className="text-[#006D77] dark:text-[#83C5BE]">POSTGRES_PASSWORD=</div>
+                        <div className="text-[#006D77] dark:text-[#83C5BE]">POSTGRES_HOST=</div>
+                        <div className="text-[#006D77] dark:text-[#83C5BE]">POSTGRES_PORT=</div>
+                        <div className="text-[#006D77] dark:text-[#83C5BE]">POSTGRES_DB=</div>
                       </div>
                     </motion.div>
                   </div>
@@ -456,7 +461,7 @@ export default function LandingPage() {
               </div>
               <h3 className="text-xl font-semibold text-[#0B1437] dark:text-white mb-2">Create Services</h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Add services like databases, APIs, or authentication providers to organize your variables.
+                Organize your environment variable keys by grouping them into services like databases, APIs, or authentication providers.
               </p>
             </motion.div>
 
@@ -470,9 +475,9 @@ export default function LandingPage() {
               <div className="w-16 h-16 bg-[#006D77] text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
                 2
               </div>
-              <h3 className="text-xl font-semibold text-[#0B1437] dark:text-white mb-2">Add Variables</h3>
+              <h3 className="text-xl font-semibold text-[#0B1437] dark:text-white mb-2">Define Variables</h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Define your environment variables with keys, values, and mark which ones are required.
+                Add keys and optionally mark them as required. The required flag helps with code validation but doesn’t affect which variables appear in the output.
               </p>
             </motion.div>
 
@@ -486,9 +491,9 @@ export default function LandingPage() {
               <div className="w-16 h-16 bg-[#006D77] text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">
                 3
               </div>
-              <h3 className="text-xl font-semibold text-[#0B1437] dark:text-white mb-2">Export & Use</h3>
+              <h3 className="text-xl font-semibold text-[#0B1437] dark:text-white mb-2">Copy and Integrate</h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Generate .env files or code snippets for your preferred language and integrate them into your project.
+                Generate .env content or language-specific code snippets. Use the copy button to grab what you need and drop it into your project.
               </p>
             </motion.div>
           </div>

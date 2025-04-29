@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -20,8 +20,21 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { serviceSchema, ServiceSchema } from "@/lib/validations";
 import { toast } from "sonner";
 import { Service, useServiceStore } from "@/lib/store";
+import { useRouter } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
 
 export default function ServicesPage() {
+
+  const router = useRouter()
+
+  const { data, isPending } = authClient.useSession()
+
+  useEffect(() => {
+    if (!isPending && !data?.session) {
+      router.push("/auth")
+    }
+  }, [isPending, data?.session, router])
+
   const [modalOpen, setModalOpen] = useState(false);
   const [expandedServices, setExpandedServices] = useState<
     Record<string, boolean>
@@ -302,7 +315,6 @@ export default function ServicesPage() {
                               whileHover={{ scale: 1.05 }}
                               whileTap={{ scale: 0.95 }}
                               onClick={() => toggleRequired(index)}
-                              value={variable.required ?? false}
                               className={cn(
                                 "w-8 h-4 rounded-full relative cursor-pointer transition-colors",
                                 variable.required

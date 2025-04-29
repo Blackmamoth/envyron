@@ -10,12 +10,27 @@ import {
   Copy,
   Check,
   Package,
+  Plus,
+  Database,
 } from "lucide-react"
 import { cn, generateEnvContent, generateGolangCode, generateJSCode, generatePythonCode } from "@/lib/utils"
 import { EnvVariable, Service, useServiceStore } from "@/lib/store"
+import { authClient } from "@/lib/auth-client"
+import { useRouter } from "next/navigation"
 
 
 export default function DashboardPage() {
+
+  const router = useRouter()
+
+  const { data, isPending } = authClient.useSession()
+
+  useEffect(() => {
+    if (!isPending && !data?.session) {
+      router.push("/auth")
+    }
+  }, [isPending, data?.session, router])
+
 
   const [activeTab, setActiveTab] = useState<"env" | "python" | "js" | "go">("env")
   const [copied, setCopied] = useState(false)
@@ -70,7 +85,7 @@ export default function DashboardPage() {
 
 
   const getCodeContent = () => {
-    const activeServicesArr = services.filter((s) => activeServices[s.id] === true)
+    const activeServicesArr = localServices.filter((s) => activeServices[s.id] === true)
 
 
     const serviceVariablesMap: Record<string, EnvVariable[]> = {};
@@ -114,7 +129,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     generateEnvContent(localServices, activeServices)
-  }, [activeServices])
+  }, [activeServices, localServices])
 
   return (
     <>
@@ -144,92 +159,115 @@ export default function DashboardPage() {
               <h3 className="text-lg font-medium text-gray-900 dark:text-white">Services</h3>
             </div>
             <div className="p-4 space-y-4">
-              <AnimatePresence>
-                {localServices.map((service) => (
-                  <motion.div
-                    key={service.id}
-                    variants={item}
-                    layout
-                    className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
+              {localServices.length === 0 ? (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-8">
+                  <div className="mx-auto w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mb-4">
+                    <Database size={24} className="text-gray-500 dark:text-gray-400" />
+                  </div>
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                    You currently have no services
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">
+                    Add a service to start managing your environment variables.
+                  </p>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="px-4 py-2 bg-[#006D77] hover:bg-[#006D77]/90 text-white rounded-md transition-colors inline-flex items-center"
+                    onClick={() => router.push("/services")}
                   >
-                    <div className="bg-gray-50 dark:bg-gray-700 p-3 flex items-center justify-between">
-                      <div className="flex items-center">
-                        <div className="text-[#006D77] dark:text-[#83C5BE] mr-2"><Package /></div>
-                        <span className="font-medium">{service.name}</span>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <motion.button
-                          whileTap={{ scale: 0.9 }}
-                          onClick={() => toggleExpanded(service.id)}
-                          className="p-1 rounded-md text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                        >
-                          {expandedServices[service.id] ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
-                        </motion.button>
-                        <motion.div
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={() => toggleService(service.id)}
-                          className={cn(
-                            "w-10 h-5 rounded-full relative cursor-pointer transition-colors",
-                            activeServices[service.id] ? "bg-[#006D77] dark:bg-[#83C5BE]" : "bg-gray-300 dark:bg-gray-600",
-                          )}
-                        >
+                    <Plus size={18} className="mr-2" />
+                    Add New Service
+                  </motion.button>
+                </motion.div>
+              ) :
+                <AnimatePresence>
+                  {localServices.map((service) => (
+                    <motion.div
+                      key={service.id}
+                      variants={item}
+                      layout
+                      className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
+                    >
+                      <div className="bg-gray-50 dark:bg-gray-700 p-3 flex items-center justify-between">
+                        <div className="flex items-center">
+                          <div className="text-[#006D77] dark:text-[#83C5BE] mr-2"><Package /></div>
+                          <span className="font-medium">{service.name}</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <motion.button
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => toggleExpanded(service.id)}
+                            className="p-1 rounded-md text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                          >
+                            {expandedServices[service.id] ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+                          </motion.button>
                           <motion.div
-                            className="w-4 h-4 bg-white rounded-full absolute top-0.5 transition-all"
-                            animate={{ left: activeServices[service.id] ? "calc(100% - 18px)" : "2px" }}
-                            transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                          />
-                        </motion.div>
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => toggleService(service.id)}
+                            className={cn(
+                              "w-10 h-5 rounded-full relative cursor-pointer transition-colors",
+                              activeServices[service.id] ? "bg-[#006D77] dark:bg-[#83C5BE]" : "bg-gray-300 dark:bg-gray-600",
+                            )}
+                          >
+                            <motion.div
+                              className="w-4 h-4 bg-white rounded-full absolute top-0.5 transition-all"
+                              animate={{ left: activeServices[service.id] ? "calc(100% - 18px)" : "2px" }}
+                              transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                            />
+                          </motion.div>
+                        </div>
                       </div>
-                    </div>
 
-                    <AnimatePresence>
-                      {expandedServices[service.id] && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: "auto", opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.3 }}
-                          className="overflow-hidden"
-                        >
-                          <div className="p-3 border-t border-gray-200 dark:border-gray-700">
+                      <AnimatePresence>
+                        {expandedServices[service.id] && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.3 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="p-3 border-t border-gray-200 dark:border-gray-700">
 
 
-                            <div className="space-y-2">
-                              {service.variables.map((variable, index) => (
-                                <div key={index} className="flex items-center justify-between">
-                                  <div className="flex-1 mr-2">
-                                    <div className="text-sm font-medium">{variable.key}</div>
-                                  </div>
-                                  <div className="flex items-center">
-                                    <span className="text-xs text-gray-500 dark:text-gray-400 mr-2">Required</span>
-                                    <motion.div
-                                      whileHover={{ scale: 1.05 }}
-                                      whileTap={{ scale: 0.95 }}
-                                      onClick={() => toggleRequired(service.id, index)}
-                                      className={cn(
-                                        "w-8 h-4 rounded-full relative cursor-pointer transition-colors",
-                                        variable.required ? "bg-[#006D77] dark:bg-[#83C5BE]"
-                                          : "bg-gray-300 dark:bg-gray-600",
-                                      )}
-                                    >
+                              <div className="space-y-2">
+                                {service.variables.map((variable, index) => (
+                                  <div key={index} className="flex items-center justify-between">
+                                    <div className="flex-1 mr-2">
+                                      <div className="text-sm font-medium">{variable.key}</div>
+                                    </div>
+                                    <div className="flex items-center">
+                                      <span className="text-xs text-gray-500 dark:text-gray-400 mr-2">Required</span>
                                       <motion.div
-                                        className="w-3 h-3 bg-white rounded-full absolute top-0.5 transition-all"
-                                        animate={{ left: variable.required ? "calc(100% - 14px)" : "2px" }}
-                                        transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                                      />
-                                    </motion.div>
+                                        whileHover={{ scale: 1.05 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={() => toggleRequired(service.id, index)}
+                                        className={cn(
+                                          "w-8 h-4 rounded-full relative cursor-pointer transition-colors",
+                                          variable.required ? "bg-[#006D77] dark:bg-[#83C5BE]"
+                                            : "bg-gray-300 dark:bg-gray-600",
+                                        )}
+                                      >
+                                        <motion.div
+                                          className="w-3 h-3 bg-white rounded-full absolute top-0.5 transition-all"
+                                          animate={{ left: variable.required ? "calc(100% - 14px)" : "2px" }}
+                                          transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                                        />
+                                      </motion.div>
+                                    </div>
                                   </div>
-                                </div>
-                              ))}
+                                ))}
+                              </div>
                             </div>
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              }
             </div>
           </motion.div>
 

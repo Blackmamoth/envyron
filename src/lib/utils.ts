@@ -17,7 +17,7 @@ export const generateEnvContent = (
   activeServices: Record<string, boolean>,
 ) => {
   let content = "";
-  if (services) {
+  if (services.length !== 0) {
     services.forEach((service) => {
       if (activeServices[service.id]) {
         content += `# ${service.name} Configuration\n`;
@@ -35,8 +35,9 @@ export const generatePythonCode = (
   serviceVars: Record<string, EnvVariable[]>,
 ) => {
   const services = Object.keys(serviceVars);
-  let code = `
-from pydantic_settings import BaseSettings, SettingsConfigDict
+  let code = ``;
+  if (services.length !== 0) {
+    code += `from pydantic_settings import BaseSettings, SettingsConfigDict
 
 ${services.map(
   (s) => `
@@ -50,22 +51,22 @@ class ${s}Schema(BaseSettings):
 )}
 `;
 
-  code += `\n
-${services.map(
-  (s) => `
+    code += `${services.map(
+      (s) => `
 ${s}Config = ${s}Schema()
 `,
-)}
+    )}
 `;
-
-  return code.replaceAll(",", "");
+  }
+  return code.replaceAll(/^,/gm, "").replaceAll(/,$/gm, "");
 };
 
 export const generateJSCode = (serviceVars: Record<string, EnvVariable[]>) => {
   const services = Object.keys(serviceVars);
 
-  let code = `
-import { z } from 'zod'
+  let code = ``;
+  if (services.length !== 0) {
+    code += `import { z } from 'zod'
 import 'dotenv/config'
 
 
@@ -80,14 +81,13 @@ ${serviceVars[s].map(
 )}
 `;
 
-  code += `
+    code += `
 ${services.map(
-  (s) => `\n
-export const ${s}Config = ${s}Schema.parse(process.env)
+  (s) => `export const ${s}Config = ${s}Schema.parse(process.env)
 `,
 )}
 `;
-
+  }
   return code.replace(/^,/gm, "");
 };
 
@@ -96,8 +96,9 @@ export const generateGolangCode = (
 ) => {
   const services = Object.keys(serviceVars);
 
-  let code = `
-package config
+  let code = ``;
+  if (services.length !== 0) {
+    code += `package config
 
 import (
         "log"
@@ -118,7 +119,7 @@ ${serviceVars[s].map(
 )}
 `;
 
-  code += `
+    code += `
 var (
 ${services.map(
   (s) => `    ${s}Config ${s}Configuration
@@ -126,7 +127,7 @@ ${services.map(
 )})
 `;
 
-  code += `
+    code += `
 func init() {
 ${services.map(
   (s) => `
@@ -137,6 +138,6 @@ ${services.map(
 )}
 }
 `;
-
+  }
   return code.replace(/^,/gm, "").replace(/,$/gm, "");
 };

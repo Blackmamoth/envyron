@@ -14,9 +14,9 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import { useTheme } from "next-themes"
-import { usePathname, useRouter } from "next/navigation"
+import { usePathname } from "next/navigation"
 import { authClient } from "@/lib/auth-client"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
@@ -29,24 +29,14 @@ export function Navbar() {
     setTheme(theme === "dark" ? "light" : "dark")
   }
 
+  const { data } = authClient.useSession()
+
   const navItems = [
     { href: '/dashboard', label: 'Dashboard', icon: <Server size={18} className="mr-2" /> },
     { href: '/services', label: 'Services', icon: <Database size={18} className="mr-2" /> }
   ]
 
   const pathname = usePathname()
-
-  const router = useRouter()
-
-  const { data, isPending } = authClient.useSession()
-
-  useEffect(() => {
-    if (!isPending) {
-      if (!data?.user && !data?.session) {
-        router.push("/auth")
-      }
-    }
-  }, [isPending, data?.user, data?.session, router])
 
   return (
     <>

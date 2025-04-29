@@ -29,7 +29,7 @@ export const useServiceStore = create<ServiceStore>((set) => ({
     try {
       const request = await fetch("/api/service");
       const response = await request.json();
-      set({ services: response.services });
+      set({ services: response.services || [] });
     } catch (error) {
       console.error(error);
     }

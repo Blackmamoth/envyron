@@ -14,7 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner"
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useTheme } from "next-themes"
 
 const loginSchema = z.object({
@@ -41,17 +41,30 @@ type LoginSchema = z.infer<typeof loginSchema>
 type RegisterSchema = z.infer<typeof registerSchema>
 
 export default function AuthPage() {
+
+
+  const { data, isPending } = authClient.useSession()
+
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!isPending && data?.session) {
+      router.push("/dashboard")
+    }
+  }, [isPending, data?.session, router])
+
   const [activeTab, setActiveTab] = useState<"login" | "signup">("login");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const { theme, setTheme } = useTheme()
 
+  const searchParams = useSearchParams()
+
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark");
   };
 
-  const router = useRouter()
 
   const loginForm = useForm<LoginSchema>({ resolver: zodResolver(loginSchema) })
 
@@ -150,6 +163,13 @@ export default function AuthPage() {
     loginForm.reset()
     registerForm.reset()
   }, [activeTab, loginForm, registerForm])
+
+  useEffect(() => {
+    const tab = searchParams.get("tab")
+    if (tab) {
+      setActiveTab(tab === "signup" ? "signup" : "login")
+    }
+  }, [searchParams])
 
   return (
     <div
