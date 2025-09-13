@@ -42,6 +42,10 @@
   --envyron-navy: #0b1437;
   --envyron-teal: #006d77;
   --envyron-light-teal: #83c5be;
+
+  /* New status colors */
+  --envyron-success: #2dd4bf; /* teal-green, works with navy + teal */
+  --envyron-error: #ef4444; /* bright red, clear against dark bg */
 }
 
 .dark {
@@ -123,6 +127,9 @@
   --color-envyron-navy: var(--envyron-navy);
   --color-envyron-teal: var(--envyron-teal);
   --color-envyron-light-teal: var(--envyron-light-teal);
+
+  --color-envyron-success: var(--envyron-success);
+  --color-envyron-error: var(--envyron-error);
 }
 
 @layer base {
