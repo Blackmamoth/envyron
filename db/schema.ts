@@ -1,4 +1,13 @@
-import { pgTable, text, timestamp, boolean } from "drizzle-orm/pg-core";
+import { InferSelectModel } from "drizzle-orm";
+import {
+  pgTable,
+  text,
+  timestamp,
+  boolean,
+  uuid,
+  pgEnum,
+  primaryKey,
+} from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -59,3 +68,82 @@ export const verification = pgTable("verification", {
     .$onUpdate(() => /* @__PURE__ */ new Date())
     .notNull(),
 });
+
+export const enumVariableType = pgEnum("variable_type", [
+  "STRING",
+  "INT",
+  "FLOAT",
+  "BOOLEAN",
+  "URL",
+  "EMAIL",
+  "DURATION",
+  "FILEPATH",
+  "ARRAY",
+  "JSON",
+]);
+
+export const service = pgTable("service", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  user: text("user")
+    .references(() => user.id)
+    .notNull(),
+  name: text("name").notNull(),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+export const envVariable = pgTable("env_variable", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  service: uuid("service")
+    .references(() => service.id)
+    .notNull(),
+  key: text("key").notNull(),
+  defaultValue: text("default_value").default("").notNull(),
+  required: boolean().default(false).notNull(),
+  type: enumVariableType().default("STRING").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+export const template = pgTable("template", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  user: text("user")
+    .references(() => user.id)
+    .notNull(),
+  description: text("description"),
+  name: text("name").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+export const templateComposition = pgTable(
+  "template_composition",
+  {
+    template: uuid("template_id")
+      .references(() => template.id)
+      .notNull(),
+    service: uuid("service")
+      .references(() => service.id)
+      .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.template, table.service] })],
+);
+
+export type Service = InferSelectModel<typeof service>;
+
+export type EnvVariable = InferSelectModel<typeof envVariable>;

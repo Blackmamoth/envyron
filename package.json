@@ -8,6 +8,8 @@
     "start": "next start",
     "lint": "biome check",
     "format": "biome format --write",
+    "db:dev:up": "docker compose --env-file .env -f ./docker/dev/docker-compose.service.yml up -d",
+    "db:dev:down": "docker compose --env-file .env -f ./docker/dev/docker-compose.service.yml down -v",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio"
@@ -23,6 +25,7 @@
     "@radix-ui/react-switch": "^1.2.6",
     "@radix-ui/react-tabs": "^1.1.13",
     "@t3-oss/env-nextjs": "^0.13.8",
+    "@tanstack/react-query": "^5.87.4",
     "@vercel/analytics": "^1.5.0",
     "better-auth": "^1.3.9",
     "class-variance-authority": "^0.7.1",
@@ -30,6 +33,7 @@
     "dotenv": "^17.2.2",
     "drizzle-orm": "^0.44.5",
     "geist": "^1.5.1",
+    "http-errors": "^2.0.0",
     "lucide-react": "^0.544.0",
     "next": "15.5.3",
     "next-themes": "^0.4.6",
@@ -40,11 +44,13 @@
     "react-icons": "^5.5.0",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.3.1",
-    "zod": "^4.1.8"
+    "zod": "^4.1.8",
+    "zustand": "^5.0.8"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",
     "@tailwindcss/postcss": "^4",
+    "@types/http-errors": "^2.0.5",
     "@types/node": "^20",
     "@types/pg": "^8.15.5",
     "@types/react": "^19",

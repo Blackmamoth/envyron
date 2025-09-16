@@ -6,25 +6,31 @@ import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
 import "./globals.css"
 import { Toaster } from "@/components/ui/sonner"
+import { ReactQueryProvider } from "@/lib/provider/react-query"
 
 export const metadata: Metadata = {
-	title: "Envyron - Standardize your environment",
-	description: "Create reusable environment templates and generate code snippets instantly.",
-	generator: "v0.app",
+  title: "Envyron - Standardize your environment",
+  description: "Create reusable environment templates and generate code snippets instantly.",
+  generator: "v0.app",
 }
 
+
 export default function RootLayout({
-	children,
+  children,
 }: Readonly<{
-	children: React.ReactNode
+  children: React.ReactNode
 }>) {
-	return (
-		<html lang="en" className="dark">
-			<body className={`font-sans ${GeistSans.variable} ${GeistMono.variable} antialiased`}>
-				<Suspense fallback={null}>{children}</Suspense>
-				<Analytics />
-				<Toaster />
-			</body>
-		</html>
-	)
+  return (
+    <html lang="en" className="dark">
+      <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable} antialiased`}>
+        <Suspense fallback={null}>
+          <ReactQueryProvider>
+            {children}
+          </ReactQueryProvider>
+        </Suspense>
+        <Analytics />
+        <Toaster />
+      </body>
+    </html>
+  )
 }
