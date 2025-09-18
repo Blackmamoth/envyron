@@ -1,28 +1,30 @@
-'use client'
+"use client";
 
-import Link from "next/link"
-import { notFound } from "next/navigation"
-import { useQuery } from "@tanstack/react-query"
-import { getServiceQueryOptions } from "@/lib/queryOptions/service"
-import { toast } from "sonner"
-import { EditableText } from "../editable-text"
-import { ArrowLeft } from "lucide-react"
+import { useQuery } from "@tanstack/react-query";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { toast } from "sonner";
+import { getServiceQueryOptions } from "@/lib/queryOptions/service";
+import { EditableText } from "./editable-text";
 
 type Props = {
-  serviceId: string
-}
+  serviceId: string;
+};
 
 export default function ServiceHeader({ serviceId }: Props) {
-  const { data, isPending, isError, error } = useQuery(getServiceQueryOptions(serviceId))
+  const { data, isPending, isError, error } = useQuery(
+    getServiceQueryOptions(serviceId),
+  );
 
-  const service = data?.service
+  const service = data?.service;
 
   if (isError) {
-    toast.error(error.message)
+    toast.error(error.message);
   }
 
   if (!service && !isPending) {
-    notFound()
+    notFound();
   }
 
   return (
@@ -37,9 +39,9 @@ export default function ServiceHeader({ serviceId }: Props) {
             Back to Dashboard
           </Link>
           <div className="w-px h-6 bg-gray-700" />
-          <EditableText value={service?.name || ""} onSave={async (v: string) => { }} />
+          <EditableText serviceId={serviceId} />
         </div>
       </div>
     </header>
-  )
+  );
 }

@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "service_key_unique" ON "env_variable" USING btree ("service","key");

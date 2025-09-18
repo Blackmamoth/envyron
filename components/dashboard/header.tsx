@@ -1,6 +1,11 @@
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
 import { User } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export default function DashboardHeader() {
   return (
@@ -25,11 +30,13 @@ export default function DashboardHeader() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="bg-[var(--envyron-navy)] border-[var(--envyron-teal)]/30">
-              <DropdownMenuItem className="text-white hover:bg-[var(--envyron-teal)]/20">Sign Out</DropdownMenuItem>
+              <DropdownMenuItem className="text-white hover:bg-[var(--envyron-teal)]/20">
+                Sign Out
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </div>
     </header>
-  )
+  );
 }

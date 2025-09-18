@@ -1,6 +1,6 @@
-import { Button } from "@/components/ui/button"
-import { Star } from "lucide-react"
-import { RiGithubLine } from "react-icons/ri"
+import { Star } from "lucide-react";
+import { RiGithubLine } from "react-icons/ri";
+import { Button } from "@/components/ui/button";
 
 export function GitHubSection() {
   return (
@@ -12,9 +12,12 @@ export function GitHubSection() {
       <div className="container mx-auto relative z-10">
         <div className="text-center space-y-8">
           <div className="space-y-4">
-            <h2 className="text-4xl font-bold text-white text-balance">Open Source on GitHub</h2>
+            <h2 className="text-4xl font-bold text-white text-balance">
+              Open Source on GitHub
+            </h2>
             <p className="text-xl text-[var(--envyron-light-teal)] text-pretty max-w-2xl mx-auto">
-              Contribute to the project, report issues, or star the repository to show your support.
+              Contribute to the project, report issues, or star the repository
+              to show your support.
             </p>
           </div>
 
@@ -54,5 +57,5 @@ export function GitHubSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }

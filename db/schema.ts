@@ -1,12 +1,13 @@
-import { InferSelectModel } from "drizzle-orm";
+import type { InferSelectModel } from "drizzle-orm";
 import {
+  boolean,
+  pgEnum,
   pgTable,
+  primaryKey,
   text,
   timestamp,
-  boolean,
+  uniqueIndex,
   uuid,
-  pgEnum,
-  primaryKey,
 } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
@@ -96,21 +97,27 @@ export const service = pgTable("service", {
     .notNull(),
 });
 
-export const envVariable = pgTable("env_variable", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  service: uuid("service")
-    .references(() => service.id)
-    .notNull(),
-  key: text("key").notNull(),
-  defaultValue: text("default_value").default("").notNull(),
-  required: boolean().default(false).notNull(),
-  type: enumVariableType().default("STRING").notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at")
-    .defaultNow()
-    .$onUpdate(() => new Date())
-    .notNull(),
-});
+export const envVariable = pgTable(
+  "env_variable",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    service: uuid("service")
+      .references(() => service.id)
+      .notNull(),
+    key: text("key").notNull(),
+    defaultValue: text("default_value").default("").notNull(),
+    required: boolean().default(false).notNull(),
+    type: enumVariableType().default("STRING").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => {
+    return [uniqueIndex("service_key_unique").on(table.service, table.key)];
+  },
+);
 
 export const template = pgTable("template", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -147,3 +154,7 @@ export const templateComposition = pgTable(
 export type Service = InferSelectModel<typeof service>;
 
 export type EnvVariable = InferSelectModel<typeof envVariable>;
+
+export type Template = InferSelectModel<typeof template>;
+
+export type TemplateComposition = InferSelectModel<typeof templateComposition>;

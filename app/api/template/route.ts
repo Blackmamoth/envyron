@@ -2,7 +2,7 @@ import { and, asc, eq } from "drizzle-orm";
 import httpErrors from "http-errors";
 import { NextResponse } from "next/server";
 import { db } from "@/db";
-import { service } from "@/db/schema";
+import { template } from "@/db/schema";
 import {
   getUserFromSession,
   handleAPIError,
@@ -21,15 +21,15 @@ export async function GET() {
 
     const userId = sessionUser.id;
 
-    const services = await db
+    const templates = await db
       .select()
-      .from(service)
-      .where(eq(service.user, userId))
-      .orderBy(asc(service.createdAt));
+      .from(template)
+      .where(eq(template.user, userId))
+      .orderBy(asc(template.createdAt));
 
     return NextResponse.json({
-      message: "Successfully fetched all services",
-      services,
+      message: "Successfully fetched all templates",
+      templates,
     });
   } catch (error) {
     return handleAPIError(error);
@@ -47,31 +47,31 @@ export async function POST(req: Request) {
 
     const userId = sessionUser.id;
 
-    const doesServiceExist = await db
+    const doesTemplateExist = await db
       .select()
-      .from(service)
-      .where(and(eq(service.name, name), eq(service.user, userId)));
+      .from(template)
+      .where(and(eq(template.name, name), eq(template.user, userId)));
 
-    if (doesServiceExist.length !== 0) {
+    if (doesTemplateExist.length !== 0) {
       throw new httpErrors.Conflict(
-        `'service' with name '${name}' already exists`,
+        `template with name [${name}] already exists`,
       );
     }
 
     const result = await db
-      .insert(service)
+      .insert(template)
       .values({ name, description, user: userId })
-      .returning({ serviceId: service.id });
+      .returning({ templateId: template.id });
 
-    if (!result[0].serviceId) {
-      throw new httpErrors.InternalServerError("service could not be created");
+    if (!result[0].templateId) {
+      throw new httpErrors.InternalServerError("tempalte could not be created");
     }
 
     return NextResponse.json(
       {
-        message: "service was successfully created!",
-        service: {
-          id: result[0].serviceId,
+        message: "template was successfully created!",
+        template: {
+          id: result[0].templateId,
           name: name,
         },
       },
@@ -94,41 +94,41 @@ export async function PATCH(req: Request) {
 
     const userId = sessionUser.id;
 
-    const isUsersService = await db
+    const isValidTemplate = await db
       .select()
-      .from(service)
-      .where(and(eq(service.id, item_id), eq(service.user, userId)));
+      .from(template)
+      .where(and(eq(template.id, item_id), eq(template.user, userId)));
 
-    if (isUsersService.length === 0) {
+    if (isValidTemplate.length === 0) {
       throw new httpErrors.NotFound(
-        `service with id [${item_id}] does not exist`,
+        `template with id [${item_id}] does not exist`,
       );
     }
 
-    const isServiceNameTaken = await db
+    const isTemplateNameTaken = await db
       .select()
-      .from(service)
-      .where(and(eq(service.name, name), eq(service.user, userId)));
+      .from(template)
+      .where(and(eq(template.name, name), eq(template.user, userId)));
 
-    if (isServiceNameTaken.length !== 0) {
+    if (isTemplateNameTaken.length !== 0) {
       throw new httpErrors.Conflict(
-        `service with name [${name}] already exists`,
+        `template with name [${name}] already exists`,
       );
     }
 
     const result = await db
-      .update(service)
+      .update(template)
       .set({ name: name, description: description })
-      .where(and(eq(service.id, item_id), eq(service.user, userId)));
+      .where(and(eq(template.id, item_id), eq(template.user, userId)));
 
     if (result.rowCount !== 0) {
       return NextResponse.json(
-        { message: "service updated successfully!" },
+        { message: "template updated successfully!" },
         { status: 200 },
       );
     } else {
       throw new httpErrors.InternalServerError(
-        "your service could not be updated, please try again!",
+        "your template could not be updated, please try again!",
       );
     }
   } catch (error) {

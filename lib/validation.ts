@@ -1,5 +1,5 @@
-import { enumVariableType } from "@/db/schema";
 import z from "zod";
+import { enumVariableType } from "@/db/schema";
 
 export const envVariableTypeEnum = z.enum(enumVariableType.enumValues);
 
@@ -23,12 +23,18 @@ export const envVariableSchema = z.object({
     .min(1),
 });
 
-export const updateServiceSchema = createItemSchema.extend({
-  service_id: z.uuid(),
+export const syncTemplateSchema = z.object({
+  services: z.array(z.uuid()),
+});
+
+export const updateItemSchema = createItemSchema.extend({
+  item_id: z.uuid(),
 });
 
 export type CreateItemSchema = z.infer<typeof createItemSchema>;
 
 export type EnvVariableSchema = z.infer<typeof envVariableSchema>;
 
-export type UpdateServiceSchema = z.infer<typeof updateServiceSchema>;
+export type UpdateItemSchema = z.infer<typeof updateItemSchema>;
+
+export type SyncTemplateSchema = z.infer<typeof syncTemplateSchema>;

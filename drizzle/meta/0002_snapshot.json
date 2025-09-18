@@ -1,6 +1,6 @@
 {
-  "id": "477ab37b-dd75-4dee-a414-69ab7467255a",
-  "prevId": "8a1c301a-fb8a-40d9-949c-236a96528012",
+  "id": "ee52c73f-8668-4a51-a834-1f2975adcc95",
+  "prevId": "477ab37b-dd75-4dee-a414-69ab7467255a",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -166,7 +166,29 @@
           "default": "now()"
         }
       },
-      "indexes": {},
+      "indexes": {
+        "service_key_unique": {
+          "name": "service_key_unique",
+          "columns": [
+            {
+              "expression": "service",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "key",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
       "foreignKeys": {
         "env_variable_service_service_id_fk": {
           "name": "env_variable_service_service_id_fk",

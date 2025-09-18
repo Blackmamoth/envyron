@@ -1,6 +1,6 @@
-import { Button } from "@/components/ui/button"
-import { CodePreview } from "@/components/code-preview"
-import Link from "next/link"
+import Link from "next/link";
+import { CodePreview } from "@/components/code-preview";
+import { Button } from "@/components/ui/button";
 
 export function HeroSection() {
   return (
@@ -13,7 +13,9 @@ export function HeroSection() {
           {/* Left side - Content */}
           <div className="space-y-8">
             <div className="space-y-4">
-              <h1 className="text-5xl lg:text-6xl font-bold text-white text-balance">Standardize your environment.</h1>
+              <h1 className="text-5xl lg:text-6xl font-bold text-white text-balance">
+                Standardize your environment.
+              </h1>
               <p className="text-xl text-[var(--envyron-light-teal)] text-pretty max-w-lg">
                 Build once, reuse everywhere.
               </p>
@@ -38,5 +40,5 @@ export function HeroSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }

@@ -1,8 +1,8 @@
-import { headers } from "next/headers";
-import { auth } from "./auth";
 import httpErrors from "http-errors";
-import { ZodError, ZodType } from "zod";
+import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import { ZodError, type ZodType } from "zod";
+import { auth } from "./auth";
 
 export const getUserFromSession = async () => {
   const session = await auth.api.getSession({
@@ -15,13 +15,12 @@ export const getUserFromSession = async () => {
 };
 
 export const validateRequestBody = async <T>(
-  body: any,
+  body: unknown,
   schema: ZodType<T>,
 ): Promise<T> => {
   const data = await schema.safeParseAsync(body);
   if (!data.success)
     throw new httpErrors.UnprocessableEntity(data.error.message);
-
   return data.data;
 };
 

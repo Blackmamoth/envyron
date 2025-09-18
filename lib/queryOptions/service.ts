@@ -1,6 +1,6 @@
-import { Service } from "@/db/schema";
-import { CreateItemSchema, UpdateServiceSchema } from "@/validation/service";
 import { mutationOptions, queryOptions } from "@tanstack/react-query";
+import type { Service } from "@/db/schema";
+import type { CreateItemSchema, UpdateItemSchema } from "@/lib/validation";
 
 const createService = async (
   body: CreateItemSchema,
@@ -51,7 +51,7 @@ const getService = async (
 };
 
 const updateService = async (
-  updateServiceData: UpdateServiceSchema,
+  updateServiceData: UpdateItemSchema,
 ): Promise<{ message: string }> => {
   const response = await fetch("/api/service", {
     method: "PATCH",
@@ -70,7 +70,7 @@ const updateService = async (
   return { message: resBody?.message };
 };
 
-export const createServiceQueryOptions = () =>
+export const createServiceMutationOptions = () =>
   mutationOptions({
     mutationKey: ["services", "create"],
     mutationFn: createService,
@@ -88,7 +88,7 @@ export const getServiceQueryOptions = (id: string) =>
     queryFn: () => getService(id),
   });
 
-export const updateServiceQueryOptions = () =>
+export const updateServiceMutationOptions = () =>
   mutationOptions({
     mutationKey: ["services", "update"],
     mutationFn: updateService,
