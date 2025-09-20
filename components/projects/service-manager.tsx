@@ -1,6 +1,6 @@
 "use client";
 
-import { EnvVariable, Service } from "@/db/schema";
+import type { EnvVariable, Service } from "@/db/schema";
 import { getProjectCompositionQueryOptions } from "@/lib/queryOptions/project";
 import { getServicesQueryOptions } from "@/lib/queryOptions/service";
 import { getServiceVariables } from "@/lib/utils";
@@ -69,8 +69,6 @@ export function ServiceManager({ projectId }: Props) {
       }
     }
   }, [projectCompositions, services, projectItems, queryClient]);
-
-
 
   return (
     <div className="flex h-[calc(100vh-73px)]">

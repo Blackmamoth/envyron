@@ -12,9 +12,9 @@ import {
 } from "@/lib/action";
 import {
   createProjectSchema,
-  CreateProjectSchema,
+  type CreateProjectSchema,
   updateItemSchema,
-  UpdateItemSchema,
+  type UpdateItemSchema,
 } from "@/lib/validation";
 import { and, asc, eq } from "drizzle-orm";
 import httpErrors from "http-errors";

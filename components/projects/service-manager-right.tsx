@@ -9,7 +9,7 @@ import {
 import { ChevronDown, Copy, Download } from "lucide-react";
 import { useState } from "react";
 import { contentGenerators, generateEnvContent } from "@/lib/utils";
-import { EnvVariable, Service } from "@/db/schema";
+import type { EnvVariable, Service } from "@/db/schema";
 
 type Props = {
   enabledServices: string[];
@@ -95,7 +95,7 @@ export function ServiceManagerRightPanel({
                 {[".env", "TypeScript"].map((option) => (
                   <DropdownMenuItem
                     key={option}
-                    onClick={() => setActivePreview(option as any)}
+                    onClick={() => setActivePreview(option as ".env" | "TypeScript")}
                     className="text-white hover:bg-[#006D77]/20 font-mono"
                   >
                     {option}

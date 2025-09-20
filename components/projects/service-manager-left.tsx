@@ -1,7 +1,7 @@
-import { EnvVariable, Service } from "@/db/schema";
+import type { EnvVariable, Service } from "@/db/schema";
 import { getServicesQueryOptions } from "@/lib/queryOptions/service";
 import { useQuery } from "@tanstack/react-query";
-import { SetStateAction, useEffect, useState } from "react";
+import { type SetStateAction, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -72,7 +72,7 @@ export function ServiceManagerLeftSidebar({
     });
 
     setVariableConfigs(newConfigs);
-  }, [projectItems, serviceVariables]);
+  }, [projectItems, serviceVariables, variableConfigs, setVariableConfigs]);
 
   const serviceQuery = useQuery(getServicesQueryOptions());
   const services = serviceQuery?.data?.services || [];
@@ -198,12 +198,12 @@ export function ServiceManagerLeftSidebar({
             {projectItems.map((item) => (
               <div key={item.id} className="space-y-2">
                 <div
-                  className={`flex items-center justify-between p-3 rounded-lg hover:bg-[#006D77]/10 transition-colors group ${
-                    !enabledServices.includes(item.id) ? "opacity-50" : ""
-                  }`}
+                  className={`flex items-center justify-between p-3 rounded-lg hover:bg-[#006D77]/10 transition-colors group ${!enabledServices.includes(item.id) ? "opacity-50" : ""
+                    }`}
                 >
                   <div className="flex items-center gap-2 flex-1">
                     <button
+                      type="button"
                       onClick={() => toggleServiceExpansion(item.name)}
                       className="p-1 hover:bg-[#006D77]/20 rounded transition-colors"
                     >
@@ -251,11 +251,10 @@ export function ServiceManagerLeftSidebar({
                           return (
                             <div
                               key={variable.key}
-                              className={`flex items-center justify-between py-2 px-3 rounded-md transition-all duration-200 group hover:bg-[#006D77]/10 ${
-                                !isIncluded
-                                  ? "opacity-40"
-                                  : "hover:shadow-sm hover:shadow-[#006D77]/20"
-                              }`}
+                              className={`flex items-center justify-between py-2 px-3 rounded-md transition-all duration-200 group hover:bg-[#006D77]/10 ${!isIncluded
+                                ? "opacity-40"
+                                : "hover:shadow-sm hover:shadow-[#006D77]/20"
+                                }`}
                             >
                               <div className="flex items-center gap-3 flex-1 min-w-0">
                                 <Checkbox
@@ -269,11 +268,10 @@ export function ServiceManagerLeftSidebar({
                                   className="data-[state=checked]:bg-[#006D77] data-[state=checked]:border-[#006D77] shrink-0"
                                 />
                                 <span
-                                  className={`text-sm font-mono font-medium transition-all duration-200 truncate ${
-                                    isIncluded
-                                      ? "text-white group-hover:text-[#83C5BE]"
-                                      : "text-gray-500 line-through"
-                                  }`}
+                                  className={`text-sm font-mono font-medium transition-all duration-200 truncate ${isIncluded
+                                    ? "text-white group-hover:text-[#83C5BE]"
+                                    : "text-gray-500 line-through"
+                                    }`}
                                 >
                                   {variable.key}
                                 </span>

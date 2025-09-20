@@ -1,9 +1,9 @@
-import { QueryClient } from "@tanstack/react-query";
+import type { QueryClient } from "@tanstack/react-query";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { getVariablesQueryOptions } from "./queryOptions/envVariable";
-import { SetStateAction } from "react";
-import { EnvVariable, Service } from "@/db/schema";
+import type { SetStateAction } from "react";
+import type { EnvVariable, Service } from "@/db/schema";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -51,6 +51,7 @@ export function generateEnvContent(
   >,
   typesafe: boolean,
 ) {
+  console.log(typesafe);
   let content = "";
   if (servicesArr.length === 0) return content;
 

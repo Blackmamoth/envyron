@@ -26,7 +26,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getServicesQueryOptions } from "@/lib/queryOptions/service";
 import { getTemplatesQueryOptions } from "@/lib/queryOptions/template";
 import { getProjectsQueryOptions } from "@/lib/queryOptions/project";
-import { Project, Service, Template } from "@/db/schema";
+import type { Project, Service, Template } from "@/db/schema";
 
 export default function DashboardContent() {
   const [activeTab, setActiveTab] = useState("projects");

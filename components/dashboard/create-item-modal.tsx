@@ -23,8 +23,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Template } from "@/db/schema";
-import z from "zod";
+import type { Template } from "@/db/schema";
+import type z from "zod";
 import { createProjectMutationOptions } from "@/lib/queryOptions/project";
 
 type Props = {
@@ -163,7 +163,7 @@ export default function CreateItemModal({
             </div>
             {activeTab === "projects" && (
               <div className="space-y-2">
-                <label className="text-sm font-medium text-[var(--envyron-light-teal)]">
+                <label htmlFor="template" className="text-sm font-medium text-[var(--envyron-light-teal)]">
                   Template (optional)
                 </label>
                 <Controller

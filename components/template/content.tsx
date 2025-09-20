@@ -8,7 +8,6 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import type { EnvVariable, Service } from "@/db/schema";
-import { getVariablesQueryOptions } from "@/lib/queryOptions/envVariable";
 import { getServicesQueryOptions } from "@/lib/queryOptions/service";
 import {
   getTemplateCompositionQueryOptions,
@@ -126,7 +125,7 @@ export function TemplateContent({ templateId }: Props) {
         }),
       );
     }
-  }, [compositionQuery.data, setValue, queryClient.fetchQuery]);
+  }, [compositionQuery.data, setValue, queryClient]);
 
   return (
     <>
@@ -149,11 +148,10 @@ export function TemplateContent({ templateId }: Props) {
             {filteredServices.map((service) => (
               <div
                 key={service.id}
-                className={`p-4 rounded-lg border transition-all duration-200 cursor-pointer hover:border-[#006D77] hover:shadow-lg hover:shadow-[#006D77]/20 ${
-                  selectedServices.includes(service.id)
-                    ? "bg-[#006D77]/15 border-[#006D77]"
-                    : "bg-[#1A2B5C] border-gray-700"
-                }`}
+                className={`p-4 rounded-lg border transition-all duration-200 cursor-pointer hover:border-[#006D77] hover:shadow-lg hover:shadow-[#006D77]/20 ${selectedServices.includes(service.id)
+                  ? "bg-[#006D77]/15 border-[#006D77]"
+                  : "bg-[#1A2B5C] border-gray-700"
+                  }`}
                 onClick={() => handleServiceToggle(service)}
               >
                 <div className="flex items-start gap-3">

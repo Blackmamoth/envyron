@@ -1,5 +1,5 @@
 import { mutationOptions, queryOptions } from "@tanstack/react-query";
-import type { Project, ProjectComposition } from "@/db/schema";
+import type { Project } from "@/db/schema";
 import type {
   CreateProjectSchema,
   SyncProjectSchema,
