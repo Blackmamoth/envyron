@@ -1,4 +1,4 @@
-import type { InferSelectModel } from "drizzle-orm";
+import { type InferSelectModel } from "drizzle-orm";
 import {
   boolean,
   pgEnum,
@@ -151,6 +151,45 @@ export const templateComposition = pgTable(
   (table) => [primaryKey({ columns: [table.template, table.service] })],
 );
 
+export const project = pgTable(
+  "project",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    description: text("description"),
+    user: text("user")
+      .references(() => user.id)
+      .notNull(),
+    template: uuid("template").references(() => template.id),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [
+    uniqueIndex("projectname_user_unique").on(table.name, table.user),
+  ],
+);
+
+export const projectComposition = pgTable(
+  "project_composition",
+  {
+    project: uuid("project")
+      .references(() => project.id)
+      .notNull(),
+    service: uuid("service")
+      .references(() => service.id)
+      .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date())
+      .notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.project, table.service] })],
+);
+
 export type Service = InferSelectModel<typeof service>;
 
 export type EnvVariable = InferSelectModel<typeof envVariable>;
@@ -158,3 +197,7 @@ export type EnvVariable = InferSelectModel<typeof envVariable>;
 export type Template = InferSelectModel<typeof template>;
 
 export type TemplateComposition = InferSelectModel<typeof templateComposition>;
+
+export type Project = InferSelectModel<typeof project>;
+
+export type ProjectComposition = InferSelectModel<typeof projectComposition>;

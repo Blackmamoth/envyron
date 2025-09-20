@@ -142,7 +142,7 @@ export const syncTemplateMutationOptions = (id: string) =>
     mutationFn: (body: SyncTemplateSchema) => syncTemplateServices(id, body),
   });
 
-export const getCompositionQueryOptions = (id: string) =>
+export const getTemplateCompositionQueryOptions = (id: string) =>
   queryOptions({
     queryKey: ["template", id, "compositions"],
     queryFn: () => getTemplateCompositions(id),

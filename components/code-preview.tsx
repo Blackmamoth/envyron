@@ -96,8 +96,9 @@ export function CodePreview() {
 
         <div className="relative min-h-[300px]">
           <pre
-            className={`text-sm font-mono text-white overflow-x-auto transition-all duration-300 ${isAnimating ? "fade-out-slide" : "fade-in-slide"
-              }`}
+            className={`text-sm font-mono text-white overflow-x-auto transition-all duration-300 ${
+              isAnimating ? "fade-out-slide" : "fade-in-slide"
+            }`}
           >
             <code className="whitespace-pre-wrap break-words">
               {currentSnippet.code}
@@ -113,10 +114,11 @@ export function CodePreview() {
           {codeSnippets.map((value, index) => (
             <div
               key={value.title}
-              className={`w-2 h-2 rounded-full transition-all duration-300 ${index === currentIndex
-                ? "bg-[var(--envyron-light-teal)] pulse-animate"
-                : "bg-[var(--envyron-teal)]/50 hover:bg-[var(--envyron-teal)]"
-                }`}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                index === currentIndex
+                  ? "bg-[var(--envyron-light-teal)] pulse-animate"
+                  : "bg-[var(--envyron-teal)]/50 hover:bg-[var(--envyron-teal)]"
+              }`}
             />
           ))}
         </div>

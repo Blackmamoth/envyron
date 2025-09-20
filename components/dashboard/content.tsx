@@ -25,24 +25,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getServicesQueryOptions } from "@/lib/queryOptions/service";
 import { getTemplatesQueryOptions } from "@/lib/queryOptions/template";
-
-const mockProjects = [
-  {
-    id: 1,
-    name: "E-commerce API",
-    description: "REST API for online store with payment integration",
-  },
-  {
-    id: 2,
-    name: "Chat Application",
-    description: "Real-time messaging app with WebSocket support",
-  },
-  {
-    id: 3,
-    name: "Analytics Dashboard",
-    description: "Data visualization platform for business metrics",
-  },
-];
+import { getProjectsQueryOptions } from "@/lib/queryOptions/project";
+import { Project, Service, Template } from "@/db/schema";
 
 export default function DashboardContent() {
   const [activeTab, setActiveTab] = useState("projects");
@@ -63,6 +47,10 @@ export default function DashboardContent() {
   if (templatesQuery.isError) {
     toast.error(templatesQuery.error.message);
   }
+
+  const projectsQuery = useQuery(getProjectsQueryOptions());
+
+  const projects = projectsQuery.data?.projects || [];
 
   const handleCreateClick = () => {
     setIsCreateModalOpen(true);
@@ -90,7 +78,10 @@ export default function DashboardContent() {
     </div>
   );
 
-  const renderItemCards = (items: { id: number, name: string, description: string }[], type: string) => (
+  const renderItemCards = (
+    items: Project[] | Service[] | Template[],
+    type: string,
+  ) => (
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
       {items.map((item) => (
         <Card
@@ -133,7 +124,7 @@ export default function DashboardContent() {
                       </DropdownMenuItem>
                     </Link>
                   ) : (
-                    <Link href="/projects/workspace">
+                    <Link href={`/projects/workspace/${item.id}`}>
                       <DropdownMenuItem className="text-white hover:bg-[var(--envyron-teal)]/20">
                         <Edit className="w-4 h-4 mr-2" />
                         Open Workspace
@@ -194,8 +185,8 @@ export default function DashboardContent() {
             </div>
 
             <TabsContent value="projects" className="mt-0">
-              {mockProjects.length > 0
-                ? renderItemCards(mockProjects, "projects")
+              {projects.length > 0
+                ? renderItemCards(projects, "projects")
                 : renderEmptyState("projects")}
             </TabsContent>
 
@@ -218,6 +209,7 @@ export default function DashboardContent() {
         activeTab={activeTab}
         isCreateModalOpen={isCreateModalOpen}
         setIsCreateModalOpen={setIsCreateModalOpen}
+        templates={templates}
       />
     </>
   );

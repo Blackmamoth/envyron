@@ -125,7 +125,10 @@ export default function ServiceBody({ serviceId }: Props) {
                 >
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div className="space-y-2">
-                      <label htmlFor={`env_variables.${index}.key`} className="text-xs font-medium text-gray-400 uppercase tracking-wide">
+                      <label
+                        htmlFor={`env_variables.${index}.key`}
+                        className="text-xs font-medium text-gray-400 uppercase tracking-wide"
+                      >
                         Key *
                       </label>
                       <Input
@@ -136,7 +139,10 @@ export default function ServiceBody({ serviceId }: Props) {
                     </div>
 
                     <div className="space-y-2">
-                      <label htmlFor={`env_variables.${index}.defaultValue`} className="text-xs font-medium text-gray-400 uppercase tracking-wide">
+                      <label
+                        htmlFor={`env_variables.${index}.defaultValue`}
+                        className="text-xs font-medium text-gray-400 uppercase tracking-wide"
+                      >
                         Default Value
                       </label>
                       <Input
@@ -147,7 +153,10 @@ export default function ServiceBody({ serviceId }: Props) {
                     </div>
 
                     <div className="space-y-2">
-                      <label htmlFor={`env_variables.${index}.required`} className="text-xs font-medium text-gray-400 uppercase tracking-wide">
+                      <label
+                        htmlFor={`env_variables.${index}.required`}
+                        className="text-xs font-medium text-gray-400 uppercase tracking-wide"
+                      >
                         Required
                       </label>
                       <div className="flex items-center h-10">
@@ -166,7 +175,10 @@ export default function ServiceBody({ serviceId }: Props) {
                     </div>
 
                     <div className="space-y-2">
-                      <label htmlFor={`env_variables.${index}.type`} className="text-xs font-medium text-gray-400 uppercase tracking-wide">
+                      <label
+                        htmlFor={`env_variables.${index}.type`}
+                        className="text-xs font-medium text-gray-400 uppercase tracking-wide"
+                      >
                         Type
                       </label>
                       <div className="flex items-center gap-2">

@@ -120,10 +120,11 @@ export function AuthForm() {
             type="button"
             disabled={loading}
             onClick={() => handleTabChange(false)}
-            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-300 auth-tab-underline ${!isSignUp
-              ? "bg-[var(--envyron-teal)] text-white shadow-sm active"
-              : "text-[var(--envyron-light-teal)] hover:text-white"
-              }`}
+            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-300 auth-tab-underline ${
+              !isSignUp
+                ? "bg-[var(--envyron-teal)] text-white shadow-sm active"
+                : "text-[var(--envyron-light-teal)] hover:text-white"
+            }`}
           >
             Sign In
           </button>
@@ -131,10 +132,11 @@ export function AuthForm() {
             type="button"
             disabled={loading}
             onClick={() => handleTabChange(true)}
-            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-300 auth-tab-underline ${isSignUp
-              ? "bg-[var(--envyron-teal)] text-white shadow-sm active"
-              : "text-[var(--envyron-light-teal)] hover:text-white"
-              }`}
+            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-300 auth-tab-underline ${
+              isSignUp
+                ? "bg-[var(--envyron-teal)] text-white shadow-sm active"
+                : "text-[var(--envyron-light-teal)] hover:text-white"
+            }`}
           >
             Sign Up
           </button>

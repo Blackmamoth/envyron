@@ -11,13 +11,14 @@ import type { EnvVariable, Service } from "@/db/schema";
 import { getVariablesQueryOptions } from "@/lib/queryOptions/envVariable";
 import { getServicesQueryOptions } from "@/lib/queryOptions/service";
 import {
-  getCompositionQueryOptions,
+  getTemplateCompositionQueryOptions,
   syncTemplateMutationOptions,
 } from "@/lib/queryOptions/template";
 import { type SyncTemplateSchema, syncTemplateSchema } from "@/lib/validation";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 import { Input } from "../ui/input";
+import { getServiceVariables } from "@/lib/utils";
 
 type Props = {
   templateId: string;
@@ -28,7 +29,9 @@ export function TemplateContent({ templateId }: Props) {
 
   const serviceQuery = useQuery(getServicesQueryOptions());
 
-  const compositionQuery = useQuery(getCompositionQueryOptions(templateId));
+  const compositionQuery = useQuery(
+    getTemplateCompositionQueryOptions(templateId),
+  );
 
   const services = serviceQuery.data?.services || [];
 
@@ -84,17 +87,7 @@ export function TemplateContent({ templateId }: Props) {
         shouldDirty: true,
       });
       if (!serviceVariables[service.id]) {
-        try {
-          const result = await queryClient.fetchQuery(
-            getVariablesQueryOptions(service.id),
-          );
-          setServiceVariables((prev) => ({
-            ...prev,
-            [service.id]: result.variables,
-          }));
-        } catch (error) {
-          console.error(error);
-        }
+        await getServiceVariables(queryClient, service.id, setServiceVariables);
       }
     }
   };
@@ -125,17 +118,11 @@ export function TemplateContent({ templateId }: Props) {
 
       Promise.all(
         compositionQuery.data.compositions.map(async (composition) => {
-          try {
-            const result = await queryClient.fetchQuery(
-              getVariablesQueryOptions(composition.service),
-            );
-            setServiceVariables((prev) => ({
-              ...prev,
-              [composition.service]: result.variables,
-            }));
-          } catch (error) {
-            console.error(error);
-          }
+          await getServiceVariables(
+            queryClient,
+            composition.service,
+            setServiceVariables,
+          );
         }),
       );
     }
@@ -162,10 +149,11 @@ export function TemplateContent({ templateId }: Props) {
             {filteredServices.map((service) => (
               <div
                 key={service.id}
-                className={`p-4 rounded-lg border transition-all duration-200 cursor-pointer hover:border-[#006D77] hover:shadow-lg hover:shadow-[#006D77]/20 ${selectedServices.includes(service.id)
-                  ? "bg-[#006D77]/15 border-[#006D77]"
-                  : "bg-[#1A2B5C] border-gray-700"
-                  }`}
+                className={`p-4 rounded-lg border transition-all duration-200 cursor-pointer hover:border-[#006D77] hover:shadow-lg hover:shadow-[#006D77]/20 ${
+                  selectedServices.includes(service.id)
+                    ? "bg-[#006D77]/15 border-[#006D77]"
+                    : "bg-[#1A2B5C] border-gray-700"
+                }`}
                 onClick={() => handleServiceToggle(service)}
               >
                 <div className="flex items-start gap-3">
