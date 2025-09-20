@@ -167,7 +167,7 @@ export default function CreateItemModal({
                   Template (optional)
                 </label>
                 <Controller
-                  name="template"
+                  name={"template" as any}
                   control={control}
                   render={({ field }) => (
                     <Select onValueChange={field.onChange} value={field.value}>
