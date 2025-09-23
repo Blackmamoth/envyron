@@ -25,10 +25,23 @@ import type { Project, Service, Template } from "@/db/schema";
 import { useFetchServices } from "@/hooks/use-service";
 import { useFetchTemplates } from "@/hooks/use-template";
 import { useFetchProjects } from "@/hooks/use-project";
+import { Dialog } from "@radix-ui/react-dialog";
+import {
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
 
 export default function DashboardContent() {
   const [activeTab, setActiveTab] = useState("projects");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState<null | {
+    id: string;
+    name: string;
+    type: "projects" | "templates" | "services";
+  }>(null);
 
   const { services } = useFetchServices();
 
@@ -38,6 +51,33 @@ export default function DashboardContent() {
 
   const handleCreateClick = () => {
     setIsCreateModalOpen(true);
+  };
+
+  const handleDeleteClick = (item: Service, type: any) => {
+    setDeleteTarget({ id: item.id, name: item.name, type });
+    setIsDeleteOpen(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (deleteTarget) {
+      // Logic to delete the item
+      // console.log(`Deleting ${deleteTarget.name}`);
+      // if (deleteTarget.type === "projects") {
+      //   setProjects(
+      //     projects.filter((project) => project.id !== deleteTarget.id),
+      //   );
+      // } else if (deleteTarget.type === "templates") {
+      //   setTemplates(
+      //     templates.filter((template) => template.id !== deleteTarget.id),
+      //   );
+      // } else if (deleteTarget.type === "services") {
+      //   setServices(
+      //     services.filter((service) => service.id !== deleteTarget.id),
+      //   );
+      // }
+    }
+    setIsDeleteOpen(false);
+    setDeleteTarget(null);
   };
 
   const renderEmptyState = (type: string) => (
@@ -115,7 +155,17 @@ export default function DashboardContent() {
                       </DropdownMenuItem>
                     </Link>
                   )}
-                  <DropdownMenuItem className="text-red-400 hover:bg-red-500/20">
+                  <DropdownMenuItem
+                    className="text-red-400 hover:bg-red-500/20"
+                    onClick={() => {
+                      setDeleteTarget({
+                        id: item.id,
+                        name: item.name,
+                        type: type as "projects" | "templates" | "services",
+                      });
+                      setIsDeleteOpen(true);
+                    }}
+                  >
                     <Trash2 className="w-4 h-4 mr-2" />
                     Delete
                   </DropdownMenuItem>
@@ -188,7 +238,59 @@ export default function DashboardContent() {
           </Tabs>
         </div>
       </div>
+      <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+        <DialogContent className="bg-[var(--envyron-navy)] border-[var(--envyron-teal)]/30 text-white">
+          <DialogHeader>
+            <DialogTitle>
+              {deleteTarget?.type === "projects" && "Delete Project"}
+              {deleteTarget?.type === "templates" && "Delete Template"}
+              {deleteTarget?.type === "services" && "Delete Service"}
+            </DialogTitle>
+            <DialogDescription className="text-[var(--envyron-light-teal)]/80">
+              {deleteTarget
+                ? `Are you sure you want to delete "${deleteTarget.name}"? This action cannot be undone.`
+                : ""}
+            </DialogDescription>
+          </DialogHeader>
 
+          <div className="flex justify-end gap-3 pt-4">
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setIsDeleteOpen(false);
+                setDeleteTarget(null);
+              }}
+              className="text-gray-400 hover:text-white"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              className="bg-(--envyron-destructive) hover:bg-(--envyron-destructive) hover:opacity-90"
+              onClick={() => {
+                if (!deleteTarget) return;
+                // if (deleteTarget.type === "projects") {
+                //   setProjects((prev) =>
+                //     prev.filter((p) => p.id !== deleteTarget.id),
+                //   );
+                // } else if (deleteTarget.type === "templates") {
+                //   setTemplates((prev) =>
+                //     prev.filter((t) => t.id !== deleteTarget.id),
+                //   );
+                // } else {
+                //   setServices((prev) =>
+                //     prev.filter((s) => s.id !== deleteTarget.id),
+                //   );
+                // }
+                setIsDeleteOpen(false);
+                setDeleteTarget(null);
+              }}
+            >
+              Delete
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
       <CreateItemModal
         activeTab={activeTab}
         isCreateModalOpen={isCreateModalOpen}

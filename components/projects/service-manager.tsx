@@ -1,10 +1,8 @@
 "use client";
-
 import type { EnvVariable, Service } from "@/db/schema";
 import { getServiceVariables } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
-
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { ServiceManagerLeftSidebar } from "./service-manager-left";
 import { ServiceManagerRightPanel } from "./service-manager-right";
 import { useFetchServices } from "@/hooks/use-service";
@@ -14,56 +12,161 @@ type Props = {
   projectId: string;
 };
 
+type VariableConfigs = Record<
+  string,
+  Record<string, { included: boolean; required: boolean }>
+>;
+
 export function ServiceManager({ projectId }: Props) {
   const [projectItems, setProjectItems] = useState<Service[]>([]);
   const [enabledServices, setEnabledServices] = useState<string[]>([]);
   const [serviceVariables, setServiceVariables] = useState<
     Record<string, EnvVariable[]>
   >({});
-  const [variableConfigs, setVariableConfigs] = useState<
-    Record<string, Record<string, { included: boolean; required: boolean }>>
-  >({});
+  const [variableConfigs, setVariableConfigs] = useState<VariableConfigs>({});
+
+  const loadingServicesRef = useRef<Set<string>>(new Set());
+  const isInitializedRef = useRef(false);
 
   const queryClient = useQueryClient();
-
-  const { services } = useFetchServices();
-
-  const { compositions: projectCompositions } =
+  const { services, isLoading: servicesLoading } = useFetchServices();
+  const { compositions: projectCompositions, isLoading: compositionsLoading } =
     useFetchProjectComposition(projectId);
 
-  useEffect(() => {
-    if (projectCompositions.length > 0 && services.length > 0) {
-      const compositionServiceIds = projectCompositions.map(
-        (comp) => comp.service,
-      );
+  const compositionServiceIds = useMemo(
+    () => projectCompositions.map((comp) => comp.service),
+    [projectCompositions],
+  );
 
-      const projectServices = services.filter((service) =>
-        compositionServiceIds.includes(service.id),
-      );
+  const currentProjectServiceIds = useMemo(
+    () => projectItems.map((item) => item.id),
+    [projectItems],
+  );
 
-      const currentProjectServiceIds = projectItems.map((item) => item.id);
-      const shouldUpdate =
-        compositionServiceIds.some(
-          (id) => !currentProjectServiceIds.includes(id),
-        ) ||
-        currentProjectServiceIds.some(
-          (id) => !compositionServiceIds.includes(id),
-        );
+  const projectServices = useMemo(
+    () =>
+      services.filter((service) => compositionServiceIds.includes(service.id)),
+    [services, compositionServiceIds],
+  );
 
-      if (shouldUpdate) {
-        setProjectItems(projectServices);
-        setEnabledServices(compositionServiceIds);
+  const shouldUpdateServices = useMemo(() => {
+    if (!projectCompositions.length || !services.length) return false;
 
-        projectServices.forEach(async (service) => {
-          await getServiceVariables(
-            queryClient,
-            service.id,
-            setServiceVariables,
-          );
+    return (
+      compositionServiceIds.some(
+        (id) => !currentProjectServiceIds.includes(id),
+      ) ||
+      currentProjectServiceIds.some((id) => !compositionServiceIds.includes(id))
+    );
+  }, [
+    compositionServiceIds,
+    currentProjectServiceIds,
+    projectCompositions.length,
+    services.length,
+  ]);
+
+  const loadServiceVariables = useCallback(
+    async (serviceIds: string[]) => {
+      const promises = serviceIds
+        .filter((id) => !loadingServicesRef.current.has(id))
+        .map(async (serviceId) => {
+          loadingServicesRef.current.add(serviceId);
+          try {
+            await getServiceVariables(
+              queryClient,
+              serviceId,
+              setServiceVariables,
+            );
+          } catch (error) {
+            console.error(
+              `Failed to load variables for service ${serviceId}:`,
+              error,
+            );
+          } finally {
+            loadingServicesRef.current.delete(serviceId);
+          }
         });
+
+      await Promise.allSettled(promises);
+    },
+    [queryClient],
+  );
+
+  useEffect(() => {
+    if (servicesLoading || compositionsLoading) return;
+
+    if (!projectCompositions.length || !services.length) {
+      if (
+        !compositionsLoading &&
+        !projectCompositions.length &&
+        projectItems.length > 0
+      ) {
+        setProjectItems([]);
+        setEnabledServices([]);
+        setServiceVariables({});
+        setVariableConfigs({});
       }
+      return;
     }
-  }, [projectCompositions, services, queryClient]);
+
+    if (shouldUpdateServices || !isInitializedRef.current) {
+      setProjectItems(projectServices);
+      setEnabledServices(compositionServiceIds);
+
+      if (compositionServiceIds.length > 0) {
+        loadServiceVariables(compositionServiceIds);
+      }
+
+      isInitializedRef.current = true;
+    }
+  }, [
+    projectCompositions,
+    services,
+    compositionServiceIds,
+    projectServices,
+    shouldUpdateServices,
+    loadServiceVariables,
+    servicesLoading,
+    compositionsLoading,
+    projectItems.length,
+  ]);
+
+  // Memoized callbacks to prevent child component re-renders
+  const handleSetProjectItems = useCallback(
+    (updater: React.SetStateAction<Service[]>) => {
+      setProjectItems(updater);
+    },
+    [],
+  );
+
+  const handleSetEnabledServices = useCallback(
+    (updater: React.SetStateAction<string[]>) => {
+      setEnabledServices(updater);
+    },
+    [],
+  );
+
+  const handleSetServiceVariables = useCallback(
+    (updater: React.SetStateAction<Record<string, EnvVariable[]>>) => {
+      setServiceVariables(updater);
+    },
+    [],
+  );
+
+  const handleSetVariableConfigs = useCallback(
+    (updater: React.SetStateAction<VariableConfigs>) => {
+      setVariableConfigs(updater);
+    },
+    [],
+  );
+
+  if ((servicesLoading || compositionsLoading) && !isInitializedRef.current) {
+    return (
+      <div className="flex h-[calc(100vh-73px)] items-center justify-center">
+        <div className="text-gray-400">Loading project services...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-[calc(100vh-73px)]">
@@ -71,13 +174,13 @@ export function ServiceManager({ projectId }: Props) {
       <ServiceManagerLeftSidebar
         projectId={projectId}
         enabledServices={enabledServices}
-        setEnabledServices={setEnabledServices}
+        setEnabledServices={handleSetEnabledServices}
         projectItems={projectItems}
-        setProjectItems={setProjectItems}
+        setProjectItems={handleSetProjectItems}
         variableConfigs={variableConfigs}
-        setVariableConfigs={setVariableConfigs}
+        setVariableConfigs={handleSetVariableConfigs}
         serviceVariables={serviceVariables}
-        setServiceVariables={setServiceVariables}
+        setServiceVariables={handleSetServiceVariables}
       />
 
       {/* Right Panel - Preview Panel */}

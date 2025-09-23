@@ -3,7 +3,7 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { getVariablesQueryOptions } from "./queryOptions/envVariable";
 import type { SetStateAction } from "react";
-import type { EnvVariable, Service } from "@/db/schema";
+import type { EnumVariableTypes, EnvVariable } from "@/db/schema";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -41,93 +41,25 @@ export function toCamelCase(text: string): string {
   );
 }
 
-export function generateEnvContent(
-  servicesArr: string[],
-  projectItems: Service[],
-  serviceVariables: Record<string, EnvVariable[]>,
-  variableConfigs: Record<
-    string,
-    Record<string, { included: boolean; required: boolean }>
-  >,
-  typesafe: boolean,
-) {
-  console.log(typesafe);
-  let content = "";
-  if (servicesArr.length === 0) return content;
+export function toPascalCase(text: string): string {
+  const words = text.split(/[\s_]+/);
 
-  servicesArr.forEach((serviceId) => {
-    const service = projectItems.find((s) => s.id === serviceId);
-    if (!service) return;
-
-    content += `\n# ${service.name} CONFIGURATION\n`;
-
-    const envVars = serviceVariables[serviceId];
-    if (envVars && envVars.length > 0) {
-      envVars.forEach((variable) => {
-        const isIncluded =
-          variableConfigs[service.id]?.[variable.key]?.included;
-
-        if (isIncluded) {
-          content += `${variable.key} = ${variable.defaultValue}\n`;
-        }
-      });
-    }
-  });
-  return content.trim();
+  return words
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join("");
 }
 
-function generateTypeScriptContent(
-  servicesArr: string[],
-  projectItems: Service[],
-  serviceVariables: Record<string, EnvVariable[]>,
-  variableConfigs: Record<
-    string,
-    Record<string, { included: boolean; required: boolean }>
-  >,
-  typeSafe: boolean,
-) {
-  let content = "";
-  if (servicesArr.length === 0) return content;
-
-  content += "import 'dotenv/config'\n";
-
-  content += typeSafe ? `import { z } from 'zod'\n\n` : "\n";
-
-  servicesArr.forEach((serviceId) => {
-    const service = projectItems.find((s) => s.id === serviceId);
-    if (!service) return;
-
-    content += `export const ${toCamelCase(service.name)}Config = {\n`;
-
-    const envVars = serviceVariables[serviceId];
-    if (envVars && envVars.length > 0) {
-      envVars.forEach((variable) => {
-        const isIncluded =
-          variableConfigs[service.id]?.[variable.key]?.included;
-
-        if (isIncluded) {
-          content += `\t${variable.key}: process.env.${variable.key},\n`;
-        }
-      });
-    }
-
-    content += "};\n\n";
-  });
-  return content.trim();
+export function toSnakeCase(text: string): string {
+  return text.split(/\s+/).join("_").toLowerCase();
 }
 
-export const contentGenerators: {
-  [key: string]: (
-    servicesArr: string[],
-    projectItems: Service[],
-    serviceVariables: Record<string, EnvVariable[]>,
-    variableConfigs: Record<
-      string,
-      Record<string, { included: boolean; required: boolean }>
-    >,
-    typeSafe: boolean,
-  ) => string;
-} = {
-  ".env": generateEnvContent,
-  TypeScript: generateTypeScriptContent,
-};
+export function getVariableValueByType(value: string, type: EnumVariableTypes) {
+  switch (type) {
+    case "INT":
+      return parseInt(value, 10);
+    case "FLOAT":
+      return parseFloat(value);
+    default:
+      return `'${value}'`;
+  }
+}

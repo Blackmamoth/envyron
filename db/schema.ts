@@ -201,3 +201,5 @@ export type TemplateComposition = InferSelectModel<typeof templateComposition>;
 export type Project = InferSelectModel<typeof project>;
 
 export type ProjectComposition = InferSelectModel<typeof projectComposition>;
+
+export type EnumVariableTypes = (typeof enumVariableType.enumValues)[number];

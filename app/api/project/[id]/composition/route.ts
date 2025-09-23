@@ -74,15 +74,17 @@ export async function PATCH(
           ),
         );
 
-      const compositions = services.map((service) => ({
-        service,
-        project: projectId,
-      }));
+      if (services.length) {
+        const compositions = services.map((service) => ({
+          service,
+          project: projectId,
+        }));
 
-      await tx
-        .insert(projectComposition)
-        .values(compositions)
-        .onConflictDoNothing();
+        await tx
+          .insert(projectComposition)
+          .values(compositions)
+          .onConflictDoNothing();
+      }
     });
 
     return NextResponse.json(

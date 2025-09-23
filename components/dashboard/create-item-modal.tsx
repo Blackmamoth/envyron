@@ -163,7 +163,10 @@ export default function CreateItemModal({
             </div>
             {activeTab === "projects" && (
               <div className="space-y-2">
-                <label htmlFor="template" className="text-sm font-medium text-[var(--envyron-light-teal)]">
+                <label
+                  htmlFor="template"
+                  className="text-sm font-medium text-[var(--envyron-light-teal)]"
+                >
                   Template (optional)
                 </label>
                 <Controller
