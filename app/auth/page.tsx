@@ -1,8 +1,19 @@
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { AuthForm } from "@/components/auth-form";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
-export default function AuthPage() {
+export default async function AuthPage() {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (session) {
+    redirect("/dashboard");
+  }
+
   return (
     <main className="min-h-screen flex items-center justify-center p-6 relative">
       {/* Background gradient */}
