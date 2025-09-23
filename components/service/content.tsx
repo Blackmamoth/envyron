@@ -1,12 +1,10 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useEffect } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -18,33 +16,20 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import {
-  getVariablesQueryOptions,
-  syncVariableMutationOptions,
-} from "@/lib/queryOptions/envVariable";
-import {
   type EnvVariableSchema,
   type EnvVariableTypes,
   envVariableSchema,
 } from "@/lib/validation";
+import { useFetchVariables, useSyncVariables } from "@/hooks/use-variable";
 
 type Props = {
   serviceId: string;
 };
 
 export default function ServiceBody({ serviceId }: Props) {
-  const queryClient = useQueryClient();
+  const syncVariablesMutation = useSyncVariables(serviceId);
 
-  const syncVariablesMutation = useMutation({
-    ...syncVariableMutationOptions(serviceId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["variables", serviceId] });
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
-
-  const { data } = useQuery(getVariablesQueryOptions(serviceId));
+  const { variables } = useFetchVariables(serviceId);
 
   const {
     register,
@@ -70,9 +55,9 @@ export default function ServiceBody({ serviceId }: Props) {
   };
 
   useEffect(() => {
-    if (data?.variables) {
+    if (variables?.length) {
       reset({
-        env_variables: data.variables.map((v) => ({
+        env_variables: variables.map((v) => ({
           key: v.key,
           defaultValue: v.defaultValue ?? "",
           required: v.required,
@@ -80,7 +65,7 @@ export default function ServiceBody({ serviceId }: Props) {
         })),
       });
     }
-  }, [data, reset]);
+  }, [variables, reset]);
 
   return (
     <form onSubmit={handleSubmit(handleSync)}>

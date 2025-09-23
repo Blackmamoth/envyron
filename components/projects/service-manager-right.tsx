@@ -95,7 +95,9 @@ export function ServiceManagerRightPanel({
                 {[".env", "TypeScript"].map((option) => (
                   <DropdownMenuItem
                     key={option}
-                    onClick={() => setActivePreview(option as ".env" | "TypeScript")}
+                    onClick={() =>
+                      setActivePreview(option as ".env" | "TypeScript")
+                    }
                     className="text-white hover:bg-[#006D77]/20 font-mono"
                   >
                     {option}

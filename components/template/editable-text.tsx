@@ -1,17 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Edit2 } from "lucide-react";
 import { notFound } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  getTemplateQueryOptions,
-  updateTemplateMutationOptions,
-} from "@/lib/queryOptions/template";
+import { useFetchTemplate, useUpdateTemplate } from "@/hooks/use-template";
 
 type Props = {
   templateId: string;
@@ -24,11 +19,14 @@ const schema = z.object({
 type ValidationSchema = z.infer<typeof schema>;
 
 export function EditableText({ templateId }: Props) {
-  const [isEditing, setIsEditing] = useState(false);
-  const { data, isPending, isError, error } = useQuery(
-    getTemplateQueryOptions(templateId),
-  );
-  const template = data?.template;
+  const { template, isPending } = useFetchTemplate(templateId);
+
+  const {
+    updateTemplate,
+    isEditing,
+    setIsEditing,
+    isPending: isMutating,
+  } = useUpdateTemplate(templateId);
 
   const {
     register,
@@ -47,32 +45,13 @@ export function EditableText({ templateId }: Props) {
     }
   }, [template?.name, reset]);
 
-  if (isError) {
-    toast.error(error.message);
-  }
-
   if (!template && !isPending) {
     notFound();
   }
 
-  const queryClient = useQueryClient();
-
-  const { mutate, isPending: isMutating } = useMutation({
-    ...updateTemplateMutationOptions(),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["template", templateId] });
-      setIsEditing(false);
-      toast.success("Template updated successfully");
-    },
-    onError: (error) => {
-      toast.error(error.message);
-      setIsEditing(false);
-    },
-  });
-
   const handleEdit = (data: ValidationSchema) => {
     if (!isValid) return;
-    mutate({
+    updateTemplate({
       name: data.name,
       item_id: templateId,
       description: template?.description || "",

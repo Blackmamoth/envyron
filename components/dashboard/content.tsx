@@ -1,6 +1,5 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import {
   Edit,
   FileText,
@@ -12,7 +11,6 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { toast } from "sonner";
 import CreateItemModal from "@/components/dashboard/create-item-modal";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -23,34 +21,20 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getServicesQueryOptions } from "@/lib/queryOptions/service";
-import { getTemplatesQueryOptions } from "@/lib/queryOptions/template";
-import { getProjectsQueryOptions } from "@/lib/queryOptions/project";
 import type { Project, Service, Template } from "@/db/schema";
+import { useFetchServices } from "@/hooks/use-service";
+import { useFetchTemplates } from "@/hooks/use-template";
+import { useFetchProjects } from "@/hooks/use-project";
 
 export default function DashboardContent() {
   const [activeTab, setActiveTab] = useState("projects");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
-  const serviceQuery = useQuery(getServicesQueryOptions());
+  const { services } = useFetchServices();
 
-  const services = serviceQuery.data?.services || [];
+  const { templates } = useFetchTemplates();
 
-  if (serviceQuery.isError) {
-    toast.error(serviceQuery.error.message);
-  }
-
-  const templatesQuery = useQuery(getTemplatesQueryOptions());
-
-  const templates = templatesQuery.data?.templates || [];
-
-  if (templatesQuery.isError) {
-    toast.error(templatesQuery.error.message);
-  }
-
-  const projectsQuery = useQuery(getProjectsQueryOptions());
-
-  const projects = projectsQuery.data?.projects || [];
+  const { projects } = useFetchProjects();
 
   const handleCreateClick = () => {
     setIsCreateModalOpen(true);

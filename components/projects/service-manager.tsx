@@ -1,22 +1,20 @@
 "use client";
 
 import type { EnvVariable, Service } from "@/db/schema";
-import { getProjectCompositionQueryOptions } from "@/lib/queryOptions/project";
-import { getServicesQueryOptions } from "@/lib/queryOptions/service";
 import { getServiceVariables } from "@/lib/utils";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 
 import { ServiceManagerLeftSidebar } from "./service-manager-left";
 import { ServiceManagerRightPanel } from "./service-manager-right";
+import { useFetchServices } from "@/hooks/use-service";
+import { useFetchProjectComposition } from "@/hooks/use-project";
 
 type Props = {
   projectId: string;
 };
 
 export function ServiceManager({ projectId }: Props) {
-  const [addModalOpen, setAddModalOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const [projectItems, setProjectItems] = useState<Service[]>([]);
   const [enabledServices, setEnabledServices] = useState<string[]>([]);
   const [serviceVariables, setServiceVariables] = useState<
@@ -28,13 +26,10 @@ export function ServiceManager({ projectId }: Props) {
 
   const queryClient = useQueryClient();
 
-  const serviceQuery = useQuery(getServicesQueryOptions());
-  const services = serviceQuery?.data?.services || [];
+  const { services } = useFetchServices();
 
-  const projectCompositionQuery = useQuery(
-    getProjectCompositionQueryOptions(String(projectId)),
-  );
-  const projectCompositions = projectCompositionQuery?.data?.compositions || [];
+  const { compositions: projectCompositions } =
+    useFetchProjectComposition(projectId);
 
   useEffect(() => {
     if (projectCompositions.length > 0 && services.length > 0) {
@@ -68,23 +63,21 @@ export function ServiceManager({ projectId }: Props) {
         });
       }
     }
-  }, [projectCompositions, services, projectItems, queryClient]);
+  }, [projectCompositions, services, queryClient]);
 
   return (
     <div className="flex h-[calc(100vh-73px)]">
       {/* Left Sidebar - Service Manager */}
       <ServiceManagerLeftSidebar
+        projectId={projectId}
         enabledServices={enabledServices}
         setEnabledServices={setEnabledServices}
         projectItems={projectItems}
         setProjectItems={setProjectItems}
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
         variableConfigs={variableConfigs}
         setVariableConfigs={setVariableConfigs}
         serviceVariables={serviceVariables}
-        addModalOpen={addModalOpen}
-        setAddModalOpen={setAddModalOpen}
+        setServiceVariables={setServiceVariables}
       />
 
       {/* Right Panel - Preview Panel */}

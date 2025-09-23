@@ -1,23 +1,22 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueryClient } from "@tanstack/react-query";
 import { ChevronDown, ChevronRight, Save, Search } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import type { EnvVariable, Service } from "@/db/schema";
-import { getServicesQueryOptions } from "@/lib/queryOptions/service";
-import {
-  getTemplateCompositionQueryOptions,
-  syncTemplateMutationOptions,
-} from "@/lib/queryOptions/template";
 import { type SyncTemplateSchema, syncTemplateSchema } from "@/lib/validation";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 import { Input } from "../ui/input";
 import { getServiceVariables } from "@/lib/utils";
+import { useFetchServices } from "@/hooks/use-service";
+import {
+  useFetchTemplateComposition,
+  useSyncTemplates,
+} from "@/hooks/use-template";
 
 type Props = {
   templateId: string;
@@ -26,13 +25,9 @@ type Props = {
 export function TemplateContent({ templateId }: Props) {
   const queryClient = useQueryClient();
 
-  const serviceQuery = useQuery(getServicesQueryOptions());
+  const { services } = useFetchServices();
 
-  const compositionQuery = useQuery(
-    getTemplateCompositionQueryOptions(templateId),
-  );
-
-  const services = serviceQuery.data?.services || [];
+  const { compositions } = useFetchTemplateComposition(templateId);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [expandedServices, setExpandedServices] = useState<string[]>([]);
@@ -42,7 +37,6 @@ export function TemplateContent({ templateId }: Props) {
 
   const {
     handleSubmit,
-    reset,
     setValue,
     watch,
     formState: { isValid, isDirty },
@@ -53,19 +47,7 @@ export function TemplateContent({ templateId }: Props) {
 
   const selectedServices = watch("services");
 
-  const { mutate } = useMutation({
-    ...syncTemplateMutationOptions(templateId),
-    onSuccess: (response) => {
-      queryClient.invalidateQueries({
-        queryKey: ["templates", templateId, "sync"],
-      });
-      toast.success(response.message);
-      reset({ services: selectedServices });
-    },
-    onError: (error) => {
-      toast.error(error.message);
-    },
-  });
+  const { mutate } = useSyncTemplates(templateId);
 
   const filteredServices = services.filter(
     (service) =>
@@ -108,15 +90,13 @@ export function TemplateContent({ templateId }: Props) {
   );
 
   useEffect(() => {
-    if (compositionQuery.data?.compositions?.length) {
-      const servicesToSet = compositionQuery.data.compositions.map(
-        (c) => c.service,
-      );
+    if (compositions?.length) {
+      const servicesToSet = compositions.map((c) => c.service);
 
       setValue("services", servicesToSet, { shouldDirty: false });
 
       Promise.all(
-        compositionQuery.data.compositions.map(async (composition) => {
+        compositions.map(async (composition) => {
           await getServiceVariables(
             queryClient,
             composition.service,
@@ -125,7 +105,7 @@ export function TemplateContent({ templateId }: Props) {
         }),
       );
     }
-  }, [compositionQuery.data, setValue, queryClient]);
+  }, [compositions, setValue, queryClient]);
 
   return (
     <>
@@ -148,10 +128,11 @@ export function TemplateContent({ templateId }: Props) {
             {filteredServices.map((service) => (
               <div
                 key={service.id}
-                className={`p-4 rounded-lg border transition-all duration-200 cursor-pointer hover:border-[#006D77] hover:shadow-lg hover:shadow-[#006D77]/20 ${selectedServices.includes(service.id)
-                  ? "bg-[#006D77]/15 border-[#006D77]"
-                  : "bg-[#1A2B5C] border-gray-700"
-                  }`}
+                className={`p-4 rounded-lg border transition-all duration-200 cursor-pointer hover:border-[#006D77] hover:shadow-lg hover:shadow-[#006D77]/20 ${
+                  selectedServices.includes(service.id)
+                    ? "bg-[#006D77]/15 border-[#006D77]"
+                    : "bg-[#1A2B5C] border-gray-700"
+                }`}
                 onClick={() => handleServiceToggle(service)}
               >
                 <div className="flex items-start gap-3">

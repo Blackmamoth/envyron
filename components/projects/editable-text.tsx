@@ -1,17 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Edit2 } from "lucide-react";
 import { notFound } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  getProjectQueryOptions,
-  updateProjectMutationOptions,
-} from "@/lib/queryOptions/project";
+import { useFetchProject, useUpdateProject } from "@/hooks/use-project";
 
 type Props = {
   projectId: string;
@@ -24,11 +19,14 @@ const schema = z.object({
 type ValidationSchema = z.infer<typeof schema>;
 
 export function EditableText({ projectId }: Props) {
-  const [isEditing, setIsEditing] = useState(false);
-  const { data, isPending, isError, error } = useQuery(
-    getProjectQueryOptions(projectId),
-  );
-  const project = data?.project;
+  const { project, isPending } = useFetchProject(projectId);
+
+  const {
+    updateProject,
+    isPending: isMutating,
+    isEditing,
+    setIsEditing,
+  } = useUpdateProject(projectId);
 
   const {
     register,
@@ -47,32 +45,13 @@ export function EditableText({ projectId }: Props) {
     }
   }, [project?.name, reset]);
 
-  if (isError) {
-    toast.error(error.message);
-  }
-
   if (!project && !isPending) {
     notFound();
   }
 
-  const queryClient = useQueryClient();
-
-  const { mutate, isPending: isMutating } = useMutation({
-    ...updateProjectMutationOptions(),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["project", projectId] });
-      setIsEditing(false);
-      toast.success("Project updated successfully");
-    },
-    onError: (error) => {
-      toast.error(error.message);
-      setIsEditing(false);
-    },
-  });
-
   const handleEdit = (data: ValidationSchema) => {
     if (!isValid) return;
-    mutate({
+    updateProject({
       name: data.name,
       item_id: projectId,
       description: project?.description || "",

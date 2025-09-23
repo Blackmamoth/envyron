@@ -46,6 +46,7 @@
   /* New status colors */
   --envyron-success: #2dd4bf; /* teal-green, works with navy + teal */
   --envyron-error: #ef4444; /* bright red, clear against dark bg */
+  --envyron-destructive: #ef4444;
 }
 
 .dark {

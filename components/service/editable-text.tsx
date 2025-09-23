@@ -1,17 +1,12 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Edit2 } from "lucide-react";
 import { notFound } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 import z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  getServiceQueryOptions,
-  updateServiceMutationOptions,
-} from "@/lib/queryOptions/service";
+import { useFetchService, useUpdateService } from "@/hooks/use-service";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 type Props = {
   serviceId: string;
@@ -24,11 +19,7 @@ const schema = z.object({
 type ValidationSchema = z.infer<typeof schema>;
 
 export function EditableText({ serviceId }: Props) {
-  const [isEditing, setIsEditing] = useState(false);
-  const { data, isPending, isError, error } = useQuery(
-    getServiceQueryOptions(serviceId),
-  );
-  const service = data?.service;
+  const { service, isPending } = useFetchService(serviceId);
 
   const {
     register,
@@ -41,37 +32,25 @@ export function EditableText({ serviceId }: Props) {
   });
 
   useEffect(() => {
-    if (service?.name) {
+    if (service) {
       reset({ name: service.name });
     }
-  }, [service?.name, reset]);
-
-  if (isError) {
-    toast.error(error.message);
-  }
+  }, [service, reset]);
 
   if (!service && !isPending) {
     notFound();
   }
 
-  const queryClient = useQueryClient();
-
-  const { mutate, isPending: isMutating } = useMutation({
-    ...updateServiceMutationOptions(),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["service", serviceId] });
-      setIsEditing(false);
-      toast.success("Service updated successfully");
-    },
-    onError: (error) => {
-      toast.error(error.message);
-      setIsEditing(false);
-    },
-  });
+  const {
+    updateService,
+    isEditing,
+    setIsEditing,
+    isPending: isMutating,
+  } = useUpdateService(serviceId);
 
   const handleEdit = (data: ValidationSchema) => {
     if (!isValid) return;
-    mutate({
+    updateService({
       name: data.name,
       item_id: serviceId,
       description: service?.description || "",

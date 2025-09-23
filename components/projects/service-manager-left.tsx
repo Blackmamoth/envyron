@@ -1,6 +1,4 @@
 import type { EnvVariable, Service } from "@/db/schema";
-import { getServicesQueryOptions } from "@/lib/queryOptions/service";
-import { useQuery } from "@tanstack/react-query";
 import { type SetStateAction, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,11 +7,15 @@ import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { ChevronDown, ChevronRight, Search } from "lucide-react";
+import { ChevronDown, ChevronRight, Search, Trash2 } from "lucide-react";
+import { useFetchServices } from "@/hooks/use-service";
+import { useSyncProjects } from "@/hooks/use-project";
 
 type VariableConfig = Record<
   string,
@@ -21,35 +23,38 @@ type VariableConfig = Record<
 >;
 
 type Props = {
+  projectId: string;
   projectItems: Service[];
   setProjectItems: React.Dispatch<SetStateAction<Service[]>>;
   serviceVariables: Record<string, EnvVariable[]>;
+  setServiceVariables: React.Dispatch<
+    SetStateAction<Record<string, EnvVariable[]>>
+  >;
   variableConfigs: VariableConfig;
   setVariableConfigs: React.Dispatch<SetStateAction<VariableConfig>>;
-  searchQuery: string;
-  setSearchQuery: React.Dispatch<SetStateAction<string>>;
   enabledServices: string[];
   setEnabledServices: React.Dispatch<SetStateAction<string[]>>;
-  addModalOpen: boolean;
-  setAddModalOpen: React.Dispatch<SetStateAction<boolean>>;
 };
 
 export function ServiceManagerLeftSidebar({
+  projectId,
   projectItems,
   setProjectItems,
   serviceVariables,
+  setServiceVariables,
   variableConfigs,
   setVariableConfigs,
-  searchQuery,
-  setSearchQuery,
   enabledServices,
   setEnabledServices,
-  addModalOpen,
-  setAddModalOpen,
 }: Props) {
   const [expandedServices, setExpandedServices] = useState<Set<string>>(
     new Set(),
   );
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [removeOpen, setRemoveOpen] = useState(false);
+  const [servicePendingRemoval, setServicePendingRemoval] =
+    useState<Service | null>(null);
 
   useEffect(() => {
     const newConfigs: Record<
@@ -72,10 +77,10 @@ export function ServiceManagerLeftSidebar({
     });
 
     setVariableConfigs(newConfigs);
-  }, [projectItems, serviceVariables, variableConfigs, setVariableConfigs]);
+  }, [projectItems, serviceVariables]);
 
-  const serviceQuery = useQuery(getServicesQueryOptions());
-  const services = serviceQuery?.data?.services || [];
+  const { services } = useFetchServices();
+  const { mutate, fetchServiceVariables } = useSyncProjects(projectId);
 
   const availableServices = services.filter(
     (service) =>
@@ -96,9 +101,13 @@ export function ServiceManagerLeftSidebar({
   };
 
   const addItem = (item: Service) => {
-    setProjectItems((items) => [...items, { ...item, enabled: true }]);
+    setProjectItems((items) => [...items, item]);
     setAddModalOpen(false);
     setSearchQuery("");
+    const items = projectItems.map((i) => i.id);
+    mutate({ services: [...items, item.id] });
+    fetchServiceVariables(item.id, setServiceVariables);
+    setEnabledServices((prev) => [...prev, item.id]);
   };
 
   const toggleVariableIncluded = (serviceId: string, variableName: string) => {
@@ -127,15 +136,52 @@ export function ServiceManagerLeftSidebar({
     }));
   };
 
-  const toggleServiceExpansion = (serviceName: string) => {
+  const toggleServiceExpansion = (serviceId: string) => {
     setExpandedServices((prev) => {
       const newSet = new Set(prev);
-      if (newSet.has(serviceName)) {
-        newSet.delete(serviceName);
+      if (newSet.has(serviceId)) {
+        newSet.delete(serviceId);
       } else {
-        newSet.add(serviceName);
+        newSet.add(serviceId);
       }
       return newSet;
+    });
+  };
+
+  const requestRemoveService = (svc: Service) => {
+    setServicePendingRemoval(svc);
+    setRemoveOpen(true);
+  };
+
+  const cancelRemoveService = () => {
+    setRemoveOpen(false);
+    setServicePendingRemoval(null);
+  };
+
+  const confirmRemoveService = () => {
+    if (!servicePendingRemoval) return;
+    const serviceId = servicePendingRemoval.id;
+    setProjectItems((items) =>
+      items.filter((i) => !(i.id === servicePendingRemoval.id)),
+    );
+
+    setVariableConfigs((prev) => {
+      const next = { ...prev };
+      delete next[serviceId];
+      return next;
+    });
+
+    setExpandedServices((prev) => {
+      const next = new Set(prev);
+      next.delete(serviceId);
+      return next;
+    });
+
+    setRemoveOpen(false);
+    setServicePendingRemoval(null);
+
+    mutate({
+      services: projectItems.filter((p) => p.id !== serviceId).map((i) => i.id),
     });
   };
 
@@ -198,8 +244,9 @@ export function ServiceManagerLeftSidebar({
             {projectItems.map((item) => (
               <div key={item.id} className="space-y-2">
                 <div
-                  className={`flex items-center justify-between p-3 rounded-lg hover:bg-[#006D77]/10 transition-colors group ${!enabledServices.includes(item.id) ? "opacity-50" : ""
-                    }`}
+                  className={`flex items-center justify-between p-3 rounded-lg hover:bg-[#006D77]/10 transition-colors group ${
+                    !enabledServices.includes(item.id) ? "opacity-50" : ""
+                  }`}
                 >
                   <div className="flex items-center gap-2 flex-1">
                     <button
@@ -226,6 +273,14 @@ export function ServiceManagerLeftSidebar({
                     onCheckedChange={() => toggleItem(item.id)}
                     className="data-[state=checked]:bg-[#006D77]"
                   />
+                  <button
+                    type="button"
+                    aria-label="Remove Service"
+                    onClick={() => requestRemoveService(item)}
+                    className="p-2 rounded transition-colors text-gray-400 hover:text-[var(--envyron-destructive)]"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
                 </div>
 
                 {enabledServices.includes(item.id) &&
@@ -251,10 +306,11 @@ export function ServiceManagerLeftSidebar({
                           return (
                             <div
                               key={variable.key}
-                              className={`flex items-center justify-between py-2 px-3 rounded-md transition-all duration-200 group hover:bg-[#006D77]/10 ${!isIncluded
-                                ? "opacity-40"
-                                : "hover:shadow-sm hover:shadow-[#006D77]/20"
-                                }`}
+                              className={`flex items-center justify-between py-2 px-3 rounded-md transition-all duration-200 group hover:bg-[#006D77]/10 ${
+                                !isIncluded
+                                  ? "opacity-40"
+                                  : "hover:shadow-sm hover:shadow-[#006D77]/20"
+                              }`}
                             >
                               <div className="flex items-center gap-3 flex-1 min-w-0">
                                 <Checkbox
@@ -268,10 +324,11 @@ export function ServiceManagerLeftSidebar({
                                   className="data-[state=checked]:bg-[#006D77] data-[state=checked]:border-[#006D77] shrink-0"
                                 />
                                 <span
-                                  className={`text-sm font-mono font-medium transition-all duration-200 truncate ${isIncluded
-                                    ? "text-white group-hover:text-[#83C5BE]"
-                                    : "text-gray-500 line-through"
-                                    }`}
+                                  className={`text-sm font-mono font-medium transition-all duration-200 truncate ${
+                                    isIncluded
+                                      ? "text-white group-hover:text-[#83C5BE]"
+                                      : "text-gray-500 line-through"
+                                  }`}
                                 >
                                   {variable.key}
                                 </span>
@@ -306,7 +363,7 @@ export function ServiceManagerLeftSidebar({
       </div>
 
       {/* Add Button */}
-      {availableServices.length > 0 && (
+      {availableServices.length > 0 && projectItems.length > 0 && (
         <div className="p-6">
           <Dialog open={addModalOpen} onOpenChange={setAddModalOpen}>
             <DialogTrigger asChild>
@@ -355,6 +412,32 @@ export function ServiceManagerLeftSidebar({
           </Dialog>
         </div>
       )}
+
+      <Dialog open={removeOpen} onOpenChange={setRemoveOpen}>
+        <DialogContent className="bg-[#0B1437] border-gray-700 text-white">
+          <DialogHeader>
+            <DialogTitle>Remove Service</DialogTitle>
+            <DialogDescription className="text-gray-300">
+              {`Are you sure you want to remove ${servicePendingRemoval?.name ?? "this service"} from this project? This action only affects this project.`}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="sm:justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={cancelRemoveService}
+              className="border-gray-600 text-gray-300 hover:bg-gray-700 bg-transparent"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmRemoveService}
+              className="bg-[var(--envyron-destructive)] hover:bg-[color:var(--envyron-destructive)]/90 text-white"
+            >
+              Remove
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

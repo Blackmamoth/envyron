@@ -1,11 +1,7 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { toast } from "sonner";
-import { getServiceQueryOptions } from "@/lib/queryOptions/service";
 import { EditableText } from "./editable-text";
 
 type Props = {
@@ -13,20 +9,6 @@ type Props = {
 };
 
 export default function ServiceHeader({ serviceId }: Props) {
-  const { data, isPending, isError, error } = useQuery(
-    getServiceQueryOptions(serviceId),
-  );
-
-  const service = data?.service;
-
-  if (isError) {
-    toast.error(error.message);
-  }
-
-  if (!service && !isPending) {
-    notFound();
-  }
-
   return (
     <header className="border-b border-gray-800 bg-[#0B1437]/95 backdrop-blur-sm sticky top-0 z-10">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
