@@ -1,4 +1,4 @@
-import { RiGithubLine } from "react-icons/ri";
+import { RiGithubLine, RiTwitterXFill } from "react-icons/ri";
 
 export function Footer() {
   return (
@@ -11,11 +11,20 @@ export function Footer() {
 
           <div className="flex items-center gap-6">
             <a
-              href="https://github.com/blackmamoth/envyron"
+              href="https://github.com/blackmamoth"
+              target="_blank"
+              rel="noopener noreferrer"
               className="flex items-center gap-2 text-[var(--envyron-light-teal)]/80 hover:text-[var(--envyron-light-teal)] transition-colors duration-300"
             >
               <RiGithubLine className="w-4 h-4" />
-              <span className="text-sm">GitHub Repository</span>
+            </a>
+            <a
+              href="https://x.com/AshpakVeetar"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-[var(--envyron-light-teal)]/80 hover:text-[var(--envyron-light-teal)] transition-colors duration-300"
+            >
+              <RiTwitterXFill className="w-4 h-4" />
             </a>
           </div>
         </div>

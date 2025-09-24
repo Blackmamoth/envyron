@@ -1,8 +1,14 @@
 import { Star } from "lucide-react";
 import { RiGithubLine } from "react-icons/ri";
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
-export function GitHubSection() {
+export async function GitHubSection() {
+  const response = await fetch(
+    "https://api.github.com/repos/blackmamoth/envyron",
+  );
+
+  const responseBody = await response.json();
+
   return (
     <section className="py-24 px-6 relative overflow-hidden">
       {/* Spotlight effect background */}
@@ -22,28 +28,21 @@ export function GitHubSection() {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <Button
-              size="lg"
-              className="bg-[var(--envyron-teal)] hover:bg-[var(--envyron-light-teal)] hover:text-[var(--envyron-navy)] transition-all duration-300 font-semibold hover:scale-105 transform"
+            <Link
+              href="https://github.com/blackmamoth/envyron"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center px-6 py-3 text-lg font-semibold rounded-md bg-[var(--envyron-teal)] text-white hover:bg-[var(--envyron-light-teal)] hover:text-[var(--envyron-navy)] transition-all duration-300 hover:scale-105 transform focus:outline-none focus:ring-2 focus:ring-[var(--envyron-light-teal)] focus:ring-offset-2"
             >
               <RiGithubLine className="w-5 h-5 mr-2" />
               View on GitHub
-            </Button>
-
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-[var(--envyron-light-teal)] text-[var(--envyron-light-teal)] hover:bg-[var(--envyron-light-teal)] hover:text-[var(--envyron-navy)] transition-all duration-300 font-semibold bg-transparent hover:scale-105 transform"
-            >
-              <Star className="w-5 h-5 mr-2" />
-              Star Repository
-            </Button>
+            </Link>
           </div>
 
           <div className="flex justify-center items-center gap-8 text-[var(--envyron-light-teal)]/60 text-sm">
             <div className="flex items-center gap-2">
               <Star className="w-4 h-4" />
-              <span>1.2k stars</span>
+              <span>{responseBody.stargazers_count} stars</span>
             </div>
             <div className="flex items-center gap-2">
               <RiGithubLine className="w-4 h-4" />

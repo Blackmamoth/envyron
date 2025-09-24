@@ -1,8 +1,13 @@
 import Link from "next/link";
 import { CodePreview } from "@/components/code-preview";
 import { Button } from "@/components/ui/button";
+import type { Session } from "better-auth";
 
-export function HeroSection() {
+type Props = {
+  session: Session | undefined;
+};
+
+export function HeroSection({ session }: Props) {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Animated gradient background */}
@@ -22,14 +27,25 @@ export function HeroSection() {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link href="/auth">
-                <Button
-                  size="lg"
-                  className="bg-[var(--envyron-teal)] hover:bg-[var(--envyron-light-teal)] hover:text-[var(--envyron-navy)] transition-all duration-300 font-semibold glow-on-hover hover:scale-105 transform"
-                >
-                  Get Started
-                </Button>
-              </Link>
+              {session ? (
+                <Link href="/dashboard">
+                  <Button
+                    size="lg"
+                    className="bg-[var(--envyron-teal)] hover:bg-[var(--envyron-light-teal)] hover:text-[var(--envyron-navy)] transition-all duration-300 font-semibold glow-on-hover hover:scale-105 transform"
+                  >
+                    Go to dashboard
+                  </Button>
+                </Link>
+              ) : (
+                <Link href="/auth">
+                  <Button
+                    size="lg"
+                    className="bg-[var(--envyron-teal)] hover:bg-[var(--envyron-light-teal)] hover:text-[var(--envyron-navy)] transition-all duration-300 font-semibold glow-on-hover hover:scale-105 transform"
+                  >
+                    Get Started
+                  </Button>
+                </Link>
+              )}
             </div>
           </div>
 
