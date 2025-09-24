@@ -54,7 +54,7 @@ export function AuthForm() {
   const signUpForm = useForm({ resolver: zodResolver(signUpSchema) });
 
   const handleSignInSubmit = async ({ email, password }: SignInSchema) => {
-    if (!signInForm.formState.isValid) return;
+    if (Object.keys(signInForm.formState.errors).length !== 0) return;
 
     await signIn.email(
       { email, password, callbackURL: "/dashboard" },
@@ -78,7 +78,7 @@ export function AuthForm() {
     email,
     password,
   }: SignUpSchema) => {
-    if (!signUpForm.formState.isValid) return;
+    if (Object.keys(signUpForm.formState.errors).length !== 0) return;
 
     await signUp.email(
       { name, email, password, callbackURL: "/dashboard" },
