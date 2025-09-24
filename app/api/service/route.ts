@@ -14,6 +14,7 @@ import {
   type UpdateItemSchema,
   updateItemSchema,
 } from "@/lib/validation";
+import { Item } from "@/types";
 
 export async function GET() {
   try {
@@ -116,9 +117,15 @@ export async function PATCH(req: Request) {
       );
     }
 
+    const updateValues: Item = { name };
+
+    if (description) {
+      updateValues.description = description;
+    }
+
     const result = await db
       .update(service)
-      .set({ name: name, description: description })
+      .set(updateValues)
       .where(and(eq(service.id, item_id), eq(service.user, userId)));
 
     if (result.rowCount !== 0) {

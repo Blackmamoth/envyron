@@ -16,6 +16,7 @@ import {
   updateItemSchema,
   type UpdateItemSchema,
 } from "@/lib/validation";
+import { Item } from "@/types";
 import { and, asc, eq } from "drizzle-orm";
 import httpErrors from "http-errors";
 import { NextResponse } from "next/server";
@@ -159,9 +160,15 @@ export async function PATCH(req: Request) {
       );
     }
 
+    const updateValues: Item = { name };
+
+    if (description) {
+      updateValues.description = description;
+    }
+
     const result = await db
       .update(project)
-      .set({ name: name, description: description })
+      .set(updateValues)
       .where(and(eq(project.id, item_id), eq(project.user, userId)));
 
     if (result.rowCount !== 0) {

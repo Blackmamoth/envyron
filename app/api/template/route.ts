@@ -1,4 +1,4 @@
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, desc, eq } from "drizzle-orm";
 import httpErrors from "http-errors";
 import { NextResponse } from "next/server";
 import { db } from "@/db";
@@ -14,6 +14,7 @@ import {
   type UpdateItemSchema,
   updateItemSchema,
 } from "@/lib/validation";
+import { Item } from "@/types";
 
 export async function GET() {
   try {
@@ -116,9 +117,15 @@ export async function PATCH(req: Request) {
       );
     }
 
+    const updateValues: Item = { name };
+
+    if (description) {
+      updateValues.description = description;
+    }
+
     const result = await db
       .update(template)
-      .set({ name: name, description: description })
+      .set(updateValues)
       .where(and(eq(template.id, item_id), eq(template.user, userId)));
 
     if (result.rowCount !== 0) {

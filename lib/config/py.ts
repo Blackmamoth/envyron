@@ -8,7 +8,7 @@ function getLanguageType(type: EnumVariableTypes): string {
     case "INT":
       return "int";
     case "FLOAT":
-      return "FLOAT";
+      return "float";
     case "BOOLEAN":
       return "bool";
     case "URL":
