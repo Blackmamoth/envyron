@@ -74,7 +74,6 @@ export default function CreateItemModal({
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ["templates"] });
       toast.success(response.message);
-      console.log(response);
       router.push(`/templates/builder/${response.template.id}`);
     },
     onError: (response) => {
@@ -87,7 +86,6 @@ export default function CreateItemModal({
     onSuccess: (response) => {
       queryClient.invalidateQueries({ queryKey: ["projects"] });
       toast.success(response.message);
-      console.log(response);
       router.push(`/projects/workspace/${response.project.id}`);
     },
     onError: (response) => {

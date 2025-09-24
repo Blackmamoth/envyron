@@ -92,7 +92,6 @@ const syncProjectServices = async (
   id: string,
   body: SyncProjectSchema,
 ): Promise<{ message: string }> => {
-  console.log(body);
   const response = await fetch(`/api/project/${id}/composition`, {
     method: "PATCH",
     body: JSON.stringify(body),

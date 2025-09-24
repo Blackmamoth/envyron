@@ -94,7 +94,6 @@ const syncTemplateServices = async (
   id: string,
   body: SyncTemplateSchema,
 ): Promise<{ message: string }> => {
-  console.log(body);
   const response = await fetch(`/api/template/${id}/composition`, {
     method: "PATCH",
     body: JSON.stringify(body),
