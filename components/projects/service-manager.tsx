@@ -95,21 +95,15 @@ export function ServiceManager({ projectId }: Props) {
   useEffect(() => {
     if (servicesLoading || compositionsLoading) return;
 
-    if (!projectCompositions.length || !services.length) {
-      if (
-        !compositionsLoading &&
-        !projectCompositions.length &&
-        projectItems.length > 0
-      ) {
-        setProjectItems([]);
-        setEnabledServices([]);
-        setServiceVariables({});
-        setVariableConfigs({});
-      }
+    if (!projectCompositions.length && projectItems.length > 0) {
+      setProjectItems([]);
+      setEnabledServices([]);
+      setServiceVariables({});
+      setVariableConfigs({});
       return;
     }
 
-    if (shouldUpdateServices || !isInitializedRef.current) {
+    if (!isInitializedRef.current) {
       setProjectItems(projectServices);
       setEnabledServices(compositionServiceIds);
 
@@ -124,11 +118,9 @@ export function ServiceManager({ projectId }: Props) {
     services,
     compositionServiceIds,
     projectServices,
-    shouldUpdateServices,
-    loadServiceVariables,
     servicesLoading,
     compositionsLoading,
-    projectItems.length,
+    loadServiceVariables,
   ]);
 
   // Memoized callbacks to prevent child component re-renders
