@@ -56,10 +56,14 @@ export function generateConfig(
         const isIncluded =
           variableConfigs[service.id]?.[variable.key]?.included;
 
+        const isRequired =
+          variableConfigs[service.id]?.[variable.key]?.required ??
+          variable.required;
+
         if (isIncluded) {
           content += `\t\t${variable.key}: ${getLanguageType(variable.type)}`;
 
-          content += variable.required ? "" : ".optional()";
+          content += isRequired ? "" : ".optional()";
 
           if (variable.defaultValue) {
             content += `.default(${getVariableValueByType(variable.defaultValue, variable.type)})`;

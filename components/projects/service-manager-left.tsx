@@ -84,7 +84,8 @@ export function ServiceManagerLeftSidebar({
             included:
               variableConfigs[item.id]?.[variable.key]?.included ?? true,
             required:
-              variableConfigs[item.id]?.[variable.key]?.required ?? true,
+              variableConfigs[item.id]?.[variable.key]?.required ??
+              variable.required,
           };
         });
       }

@@ -54,10 +54,14 @@ export function generateConfig(
         const isIncluded =
           variableConfigs[service.id]?.[variable.key]?.included;
 
+        const isRequired =
+          variableConfigs[service.id]?.[variable.key]?.required ??
+          variable.required;
+
         if (isIncluded) {
           content += `\t${variable.key} ${getLanguageType(variable.type)} \`envconfig:"${variable.key}"`;
 
-          if (variable.required) {
+          if (isRequired) {
             content += ' required:"true"';
           }
 
