@@ -1,36 +1,86 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Envyron
 
-## Getting Started
+Manage environment variable templates across projects and generate ready-to-use code snippets.
 
-First, run the development server:
+👉 [Try it live](https://envyron.vercel.app/)
+
+⚠️ **Not a secrets manager.** Don’t put production secrets here. Use Infisical, Doppler, or Vault for managing sensitive values. Envyron is for speed and convenience when starting projects.
+
+---
+
+## Why?
+
+Every time you start a new project, you end up digging through old repos or `.env.example` files just to remember what variables you need for a service.
+
+Envyron solves that by letting you define reusable service templates (e.g. Postgres, Stripe, Auth0) and quickly generate `.env` files plus code snippets in your language of choice.
+
+Create once. Reuse everywhere.
+
+---
+
+## Features
+
+- Define services with their environment variables
+- Reuse those services across multiple projects
+- Generate `.env` files instantly
+- Generate code snippets for TypeScript, Go, and Python
+- Mark variables as required or optional (validation helpers)
+
+---
+
+## Quick Start
+
+1. Open [envyron.vercel.app](https://envyron.vercel.app/)
+2. Create a service template (e.g. Postgres, Stripe)
+3. Add it to a project
+4. Copy your `.env` file and generated code snippet
+
+---
+
+## Demo
+
+[Watch the Loom video](https://www.loom.com/share/5a07ffaa8939474d95e0ec1a120905fe?sid=cbc095ae-7421-4569-8513-5e65f4af499d)
+
+---
+
+## Use Cases
+
+- **New projects** – stop guessing variable names
+- **Sharing with others** – pass along consistent `.env` templates
+- **Remembering service vars** – know what Postgres, Stripe, etc. actually need
+- **Code generation** – get boilerplate config for your language
+
+---
+
+## Tech Stack
+
+- **Frontend**: Next.js, React, Tailwind
+- **Backend**: Next.js API Routes
+- **Database**: Drizzle ORM + PostgreSQL
+- **Deployment**: Vercel
+- **UI**: Shadcn/ui
+
+---
+
+## Local Development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Clone the repository
+git clone https://github.com/blackmamoth/envyron.git
+cd envyron
+
+# Install dependencies
+bun install
+
+# Copy example env
+cp .env.example .env.local
+
+# Spin local docker server
+bun db:dev:up
+
+# Run migrations
+bun db:migrate
+
+# Start dev server
+bun run dev
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
