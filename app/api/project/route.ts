@@ -199,23 +199,20 @@ export async function DELETE(req: Request) {
 
     const userId = sessionUser.id;
 
-    const doesTemplateExist = await db
+    const doesProjectExist = await db
       .select()
       .from(project)
       .where(and(eq(project.id, projectId), eq(project.user, userId)));
 
-    if (doesTemplateExist.length === 0) {
+    if (doesProjectExist.length === 0) {
       throw httpErrors.NotFound(
-        `template with id [${projectId}] does not exist`,
+        `project with id [${projectId}] does not exist`,
       );
     }
 
     const result = await db
       .delete(project)
-      .where(and(eq(project.id, projectId), eq(template.user, userId)));
-
-    console.log();
-    console.log(result);
+      .where(and(eq(project.id, projectId), eq(project.user, userId)));
 
     if (result.rowCount === 0) {
       throw new httpErrors.InternalServerError("project was not deleted!");

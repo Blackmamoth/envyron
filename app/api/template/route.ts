@@ -156,8 +156,6 @@ export async function DELETE(req: Request) {
 
     const userId = sessionUser.id;
 
-    console.log(templateId, userId);
-
     const doesTemplateExist = await db
       .select()
       .from(template)
