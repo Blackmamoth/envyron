@@ -160,7 +160,9 @@ export const project = pgTable(
     user: text("user")
       .references(() => user.id)
       .notNull(),
-    template: uuid("template").references(() => template.id),
+    template: uuid("template").references(() => template.id, {
+      onDelete: "set null",
+    }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
       .defaultNow()

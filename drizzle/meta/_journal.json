@@ -57,6 +57,13 @@
       "when": 1758897684268,
       "tag": "0007_quiet_virginia_dare",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1758903873064,
+      "tag": "0008_burly_nightcrawler",
+      "breakpoints": true
     }
   ]
 }
