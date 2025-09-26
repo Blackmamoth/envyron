@@ -23,6 +23,8 @@ import { and, asc, eq } from "drizzle-orm";
 import httpErrors from "http-errors";
 import { NextResponse } from "next/server";
 
+export const maxDuration = 20;
+
 export async function GET() {
   try {
     const sessionUser = await getUserFromSession();
@@ -212,7 +214,7 @@ export async function DELETE(req: Request) {
 
     const result = await db
       .delete(project)
-      .where(and(eq(project.id, projectId), eq(project.user, userId)));
+      .where(and(eq(project.id, projectId), eq(template.user, userId)));
 
     console.log();
     console.log(result);
