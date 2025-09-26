@@ -97,7 +97,7 @@ export const useSyncProjects = (projectId: string) => {
     ...syncProjectMutationOptions(projectId),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["projects", projectId],
+        queryKey: ["project", projectId, "compositions"],
       });
     },
     onError: (error) => {

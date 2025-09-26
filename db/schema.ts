@@ -136,7 +136,7 @@ export const template = pgTable("template", {
 export const templateComposition = pgTable(
   "template_composition",
   {
-    template: uuid("template_id")
+    template: uuid("template")
       .references(() => template.id, { onDelete: "cascade" })
       .notNull(),
     service: uuid("service")
