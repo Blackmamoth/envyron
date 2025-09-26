@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { ZodError, type ZodType } from "zod";
 import { auth } from "./auth";
+import { DrizzleError } from "drizzle-orm";
 
 export const getUserFromSession = async () => {
   const session = await auth.api.getSession({
@@ -31,6 +32,12 @@ export const handleAPIError = (error: unknown) => {
     return NextResponse.json(
       { message: error.message },
       { status: error.statusCode },
+    );
+  } else if (error instanceof DrizzleError) {
+    console.error(error.message);
+    return NextResponse.json(
+      { message: "something went wrong, please try again" },
+      { status: 500 },
     );
   } else {
     const errorMessage =
