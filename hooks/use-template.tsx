@@ -1,11 +1,12 @@
 import {
+  deleteTemplateMutationOptions,
   getTemplateCompositionQueryOptions,
   getTemplateQueryOptions,
   getTemplatesQueryOptions,
   syncTemplateMutationOptions,
   updateTemplateMutationOptions,
 } from "@/lib/queryOptions/template";
-import type { UpdateItemSchema } from "@/lib/validation";
+import type { DeleteItemSchema, UpdateItemSchema } from "@/lib/validation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -103,4 +104,25 @@ export const useSyncTemplates = (templateId: string) => {
   });
 
   return syncTemplateMutation;
+};
+
+export const useDeleteTemplate = () => {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    ...deleteTemplateMutationOptions(),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["templates"] });
+      toast.success(data.message);
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const deleteTemplate = (data: DeleteItemSchema) => {
+    mutation.mutate(data);
+  };
+
+  return { deleteTemplate, ...mutation };
 };

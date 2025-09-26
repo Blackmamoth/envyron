@@ -102,7 +102,7 @@ export const envVariable = pgTable(
   {
     id: uuid("id").primaryKey().defaultRandom(),
     service: uuid("service")
-      .references(() => service.id)
+      .references(() => service.id, { onDelete: "cascade" })
       .notNull(),
     key: text("key").notNull(),
     defaultValue: text("default_value").default("").notNull(),
@@ -137,10 +137,10 @@ export const templateComposition = pgTable(
   "template_composition",
   {
     template: uuid("template_id")
-      .references(() => template.id)
+      .references(() => template.id, { onDelete: "cascade" })
       .notNull(),
     service: uuid("service")
-      .references(() => service.id)
+      .references(() => service.id, { onDelete: "cascade" })
       .notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
@@ -176,10 +176,10 @@ export const projectComposition = pgTable(
   "project_composition",
   {
     project: uuid("project")
-      .references(() => project.id)
+      .references(() => project.id, { onDelete: "cascade" })
       .notNull(),
     service: uuid("service")
-      .references(() => service.id)
+      .references(() => service.id, { onDelete: "cascade" })
       .notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")

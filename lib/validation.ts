@@ -14,6 +14,10 @@ export const createProjectSchema = createItemSchema.extend({
   template: z.uuid().optional(),
 });
 
+export const deleteItemSchema = z.object({
+  id: z.uuid(),
+});
+
 export const envVariableSchema = z.object({
   env_variables: z
     .array(
@@ -40,6 +44,8 @@ export const updateItemSchema = createItemSchema.extend({
 export type CreateItemSchema = z.infer<typeof createItemSchema>;
 
 export type CreateProjectSchema = z.infer<typeof createProjectSchema>;
+
+export type DeleteItemSchema = z.infer<typeof deleteItemSchema>;
 
 export type EnvVariableSchema = z.infer<typeof envVariableSchema>;
 

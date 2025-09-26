@@ -1,5 +1,6 @@
 import type { EnvVariable } from "@/db/schema";
 import {
+  deleteProjectMutationOptions,
   getProjectCompositionQueryOptions,
   getProjectQueryOptions,
   getProjectsQueryOptions,
@@ -7,7 +8,7 @@ import {
   updateProjectMutationOptions,
 } from "@/lib/queryOptions/project";
 import { getServiceVariables } from "@/lib/utils";
-import type { UpdateItemSchema } from "@/lib/validation";
+import type { DeleteItemSchema, UpdateItemSchema } from "@/lib/validation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { type SetStateAction, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -114,4 +115,25 @@ export const useSyncProjects = (projectId: string) => {
   };
 
   return { ...syncProjectMutation, fetchServiceVariables };
+};
+
+export const useDeleteProject = () => {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    ...deleteProjectMutationOptions(),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["projects"] });
+      toast.success(data.message);
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const deleteProject = (data: DeleteItemSchema) => {
+    mutation.mutate(data);
+  };
+
+  return { deleteProject, ...mutation };
 };

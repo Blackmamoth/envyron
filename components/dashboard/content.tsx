@@ -22,9 +22,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { Project, Service, Template } from "@/db/schema";
-import { useFetchServices } from "@/hooks/use-service";
-import { useFetchTemplates } from "@/hooks/use-template";
-import { useFetchProjects } from "@/hooks/use-project";
+import { useDeleteService, useFetchServices } from "@/hooks/use-service";
+import { useDeleteTemplate, useFetchTemplates } from "@/hooks/use-template";
+import { useDeleteProject, useFetchProjects } from "@/hooks/use-project";
 import { Dialog } from "@radix-ui/react-dialog";
 import {
   DialogContent,
@@ -49,32 +49,34 @@ export default function DashboardContent() {
 
   const { projects } = useFetchProjects();
 
+  const { deleteService } = useDeleteService();
+
+  const { deleteTemplate } = useDeleteTemplate();
+
+  const { deleteProject } = useDeleteProject();
+
   const handleCreateClick = () => {
     setIsCreateModalOpen(true);
   };
 
-  const handleDeleteClick = (item: Service, type: any) => {
+  const handleDeleteClick = (
+    item: Service | Template | Project,
+    type: "projects" | "templates" | "services",
+  ) => {
     setDeleteTarget({ id: item.id, name: item.name, type });
     setIsDeleteOpen(true);
   };
 
   const handleDeleteConfirm = () => {
     if (deleteTarget) {
-      // Logic to delete the item
-      // console.log(`Deleting ${deleteTarget.name}`);
-      // if (deleteTarget.type === "projects") {
-      //   setProjects(
-      //     projects.filter((project) => project.id !== deleteTarget.id),
-      //   );
-      // } else if (deleteTarget.type === "templates") {
-      //   setTemplates(
-      //     templates.filter((template) => template.id !== deleteTarget.id),
-      //   );
-      // } else if (deleteTarget.type === "services") {
-      //   setServices(
-      //     services.filter((service) => service.id !== deleteTarget.id),
-      //   );
-      // }
+      console.log(`Deleting ${deleteTarget.name}`);
+      if (deleteTarget.type === "projects") {
+        deleteProject({ id: deleteTarget.id });
+      } else if (deleteTarget.type === "templates") {
+        deleteTemplate({ id: deleteTarget.id });
+      } else if (deleteTarget.type === "services") {
+        deleteService({ id: deleteTarget.id });
+      }
     }
     setIsDeleteOpen(false);
     setDeleteTarget(null);
@@ -104,7 +106,7 @@ export default function DashboardContent() {
 
   const renderItemCards = (
     items: Project[] | Service[] | Template[],
-    type: string,
+    type: "projects" | "templates" | "services",
   ) => (
     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
       {items.map((item) => (
@@ -157,14 +159,7 @@ export default function DashboardContent() {
                   )}
                   <DropdownMenuItem
                     className="text-red-400 hover:bg-red-500/20"
-                    onClick={() => {
-                      setDeleteTarget({
-                        id: item.id,
-                        name: item.name,
-                        type: type as "projects" | "templates" | "services",
-                      });
-                      setIsDeleteOpen(true);
-                    }}
+                    onClick={() => handleDeleteClick(item, type)}
                   >
                     <Trash2 className="w-4 h-4 mr-2" />
                     Delete
@@ -267,24 +262,7 @@ export default function DashboardContent() {
             <Button
               variant="destructive"
               className="bg-(--envyron-destructive) hover:bg-(--envyron-destructive) hover:opacity-90"
-              onClick={() => {
-                if (!deleteTarget) return;
-                // if (deleteTarget.type === "projects") {
-                //   setProjects((prev) =>
-                //     prev.filter((p) => p.id !== deleteTarget.id),
-                //   );
-                // } else if (deleteTarget.type === "templates") {
-                //   setTemplates((prev) =>
-                //     prev.filter((t) => t.id !== deleteTarget.id),
-                //   );
-                // } else {
-                //   setServices((prev) =>
-                //     prev.filter((s) => s.id !== deleteTarget.id),
-                //   );
-                // }
-                setIsDeleteOpen(false);
-                setDeleteTarget(null);
-              }}
+              onClick={handleDeleteConfirm}
             >
               Delete
             </Button>

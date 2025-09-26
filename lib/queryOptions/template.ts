@@ -2,6 +2,7 @@ import { mutationOptions, queryOptions } from "@tanstack/react-query";
 import type { Template, TemplateComposition } from "@/db/schema";
 import type {
   CreateItemSchema,
+  DeleteItemSchema,
   SyncTemplateSchema,
   UpdateItemSchema,
 } from "@/lib/validation";
@@ -24,6 +25,26 @@ const createTemplate = async (
   }
 
   return { message: resBody?.message, template: resBody?.template };
+};
+
+const deleteTemplate = async ({
+  id,
+}: DeleteItemSchema): Promise<{ message: string }> => {
+  const response = await fetch("/api/template", {
+    method: "DELETE",
+    body: JSON.stringify({ id }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  const resBody = await response.json();
+
+  if (!response.ok) {
+    throw new Error(resBody?.message ?? "Failed to delete template");
+  }
+
+  return { message: resBody?.message };
 };
 
 const getTemplates = async (): Promise<{
@@ -145,4 +166,10 @@ export const getTemplateCompositionQueryOptions = (id: string) =>
   queryOptions({
     queryKey: ["template", id, "compositions"],
     queryFn: () => getTemplateCompositions(id),
+  });
+
+export const deleteTemplateMutationOptions = () =>
+  mutationOptions({
+    mutationKey: ["template", "delete"],
+    mutationFn: deleteTemplate,
   });

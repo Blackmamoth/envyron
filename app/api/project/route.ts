@@ -15,8 +15,10 @@ import {
   type CreateProjectSchema,
   updateItemSchema,
   type UpdateItemSchema,
+  deleteItemSchema,
+  type DeleteItemSchema,
 } from "@/lib/validation";
-import { Item } from "@/types";
+import type { Item } from "@/types";
 import { and, asc, eq } from "drizzle-orm";
 import httpErrors from "http-errors";
 import { NextResponse } from "next/server";
@@ -181,6 +183,45 @@ export async function PATCH(req: Request) {
         "your project could not be updated, please try again!",
       );
     }
+  } catch (error) {
+    return handleAPIError(error);
+  }
+}
+
+export async function DELETE(req: Request) {
+  try {
+    const sessionUser = await getUserFromSession();
+
+    const { id: projectId } = await validateRequestBody<DeleteItemSchema>(
+      await req.json(),
+      deleteItemSchema,
+    );
+
+    const userId = sessionUser.id;
+
+    const doesTemplateExist = await db
+      .select()
+      .from(project)
+      .where(and(eq(project.id, projectId), eq(project.user, userId)));
+
+    if (doesTemplateExist.length === 0) {
+      throw httpErrors.NotFound(
+        `template with id [${projectId}] does not exist`,
+      );
+    }
+
+    const result = await db
+      .delete(project)
+      .where(and(eq(project.id, projectId), eq(project.user, userId)));
+
+    console.log();
+    console.log(result);
+
+    if (result.rowCount === 0) {
+      throw new httpErrors.InternalServerError("project was not deleted!");
+    }
+
+    return NextResponse.json({ message: "project was successfully deleted!" });
   } catch (error) {
     return handleAPIError(error);
   }

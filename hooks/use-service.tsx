@@ -1,9 +1,10 @@
 import {
+  deleteServiceMutationOptions,
   getServiceQueryOptions,
   getServicesQueryOptions,
   updateServiceMutationOptions,
 } from "@/lib/queryOptions/service";
-import type { UpdateItemSchema } from "@/lib/validation";
+import type { DeleteItemSchema, UpdateItemSchema } from "@/lib/validation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -64,4 +65,25 @@ export const useUpdateService = (serviceId: string) => {
   };
 
   return { updateService, isEditing, setIsEditing, ...mutation };
+};
+
+export const useDeleteService = () => {
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    ...deleteServiceMutationOptions(),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["services"] });
+      toast.success(data.message);
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    },
+  });
+
+  const deleteService = (data: DeleteItemSchema) => {
+    mutation.mutate(data);
+  };
+
+  return { deleteService, ...mutation };
 };

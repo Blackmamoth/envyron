@@ -2,6 +2,7 @@ import { mutationOptions, queryOptions } from "@tanstack/react-query";
 import type { Project } from "@/db/schema";
 import type {
   CreateProjectSchema,
+  DeleteItemSchema,
   SyncProjectSchema,
   UpdateItemSchema,
 } from "@/lib/validation";
@@ -24,6 +25,26 @@ const createProject = async (
   }
 
   return { message: resBody?.message, project: resBody?.project };
+};
+
+const deleteProject = async ({
+  id,
+}: DeleteItemSchema): Promise<{ message: string }> => {
+  const response = await fetch("/api/project", {
+    method: "DELETE",
+    body: JSON.stringify({ id }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  const resBody = await response.json();
+
+  if (!response.ok) {
+    throw new Error(resBody?.message ?? "Failed to delete project");
+  }
+
+  return { message: resBody?.message };
 };
 
 const getProjects = async (): Promise<{
@@ -143,4 +164,10 @@ export const getProjectCompositionQueryOptions = (id: string) =>
   queryOptions({
     queryKey: ["project", id, "compositions"],
     queryFn: () => getProjectCompositions(id),
+  });
+
+export const deleteProjectMutationOptions = () =>
+  mutationOptions({
+    mutationKey: ["project", "delete"],
+    mutationFn: deleteProject,
   });

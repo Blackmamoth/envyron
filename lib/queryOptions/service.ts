@@ -1,6 +1,10 @@
 import { mutationOptions, queryOptions } from "@tanstack/react-query";
 import type { Service } from "@/db/schema";
-import type { CreateItemSchema, UpdateItemSchema } from "@/lib/validation";
+import type {
+  CreateItemSchema,
+  DeleteItemSchema,
+  UpdateItemSchema,
+} from "@/lib/validation";
 
 const createService = async (
   body: CreateItemSchema,
@@ -20,6 +24,26 @@ const createService = async (
   }
 
   return { message: resBody?.message, service: resBody?.service };
+};
+
+const deleteService = async ({
+  id,
+}: DeleteItemSchema): Promise<{ message: string }> => {
+  const response = await fetch("/api/service", {
+    method: "DELETE",
+    body: JSON.stringify({ id }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  const resBody = await response.json();
+
+  if (!response.ok) {
+    throw new Error(resBody?.message ?? "Failed to delete service");
+  }
+
+  return { message: resBody?.message };
 };
 
 const getServices = async (): Promise<{
@@ -92,4 +116,10 @@ export const updateServiceMutationOptions = () =>
   mutationOptions({
     mutationKey: ["services", "update"],
     mutationFn: updateService,
+  });
+
+export const deleteServiceMutationOptions = () =>
+  mutationOptions({
+    mutationKey: ["service", "delete"],
+    mutationFn: deleteService,
   });

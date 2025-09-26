@@ -13,8 +13,10 @@ import {
   createItemSchema,
   type UpdateItemSchema,
   updateItemSchema,
+  type DeleteItemSchema,
+  deleteItemSchema,
 } from "@/lib/validation";
-import { Item } from "@/types";
+import type { Item } from "@/types";
 
 export async function GET() {
   try {
@@ -138,6 +140,42 @@ export async function PATCH(req: Request) {
         "your service could not be updated, please try again!",
       );
     }
+  } catch (error) {
+    return handleAPIError(error);
+  }
+}
+
+export async function DELETE(req: Request) {
+  try {
+    const sessionUser = await getUserFromSession();
+
+    const { id: serviceId } = await validateRequestBody<DeleteItemSchema>(
+      await req.json(),
+      deleteItemSchema,
+    );
+
+    const userId = sessionUser.id;
+
+    const doesserviceExist = await db
+      .select()
+      .from(service)
+      .where(and(eq(service.id, serviceId), eq(service.user, userId)));
+
+    if (doesserviceExist.length === 0) {
+      throw httpErrors.NotFound(
+        `service with id [${serviceId}] does not exist`,
+      );
+    }
+
+    const result = await db
+      .delete(service)
+      .where(and(eq(service.id, serviceId), eq(service.user, userId)));
+
+    if (result.rowCount === 0) {
+      throw new httpErrors.InternalServerError("service was not deleted!");
+    }
+
+    return NextResponse.json({ message: "service was successfully deleted!" });
   } catch (error) {
     return handleAPIError(error);
   }

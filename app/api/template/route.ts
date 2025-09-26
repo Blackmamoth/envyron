@@ -1,4 +1,4 @@
-import { and, asc, desc, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import httpErrors from "http-errors";
 import { NextResponse } from "next/server";
 import { db } from "@/db";
@@ -13,8 +13,10 @@ import {
   createItemSchema,
   type UpdateItemSchema,
   updateItemSchema,
+  type DeleteItemSchema,
+  deleteItemSchema,
 } from "@/lib/validation";
-import { Item } from "@/types";
+import type { Item } from "@/types";
 
 export async function GET() {
   try {
@@ -138,6 +140,44 @@ export async function PATCH(req: Request) {
         "your template could not be updated, please try again!",
       );
     }
+  } catch (error) {
+    return handleAPIError(error);
+  }
+}
+
+export async function DELETE(req: Request) {
+  try {
+    const sessionUser = await getUserFromSession();
+
+    const { id: templateId } = await validateRequestBody<DeleteItemSchema>(
+      await req.json(),
+      deleteItemSchema,
+    );
+
+    const userId = sessionUser.id;
+
+    console.log(templateId, userId);
+
+    const doesTemplateExist = await db
+      .select()
+      .from(template)
+      .where(and(eq(template.id, templateId), eq(template.user, userId)));
+
+    if (doesTemplateExist.length === 0) {
+      throw httpErrors.NotFound(
+        `template with id [${templateId}] does not exist`,
+      );
+    }
+
+    const result = await db
+      .delete(template)
+      .where(and(eq(template.id, templateId), eq(template.user, userId)));
+
+    if (result.rowCount === 0) {
+      throw new httpErrors.InternalServerError("template was not deleted!");
+    }
+
+    return NextResponse.json({ message: "template was successfully deleted!" });
   } catch (error) {
     return handleAPIError(error);
   }
