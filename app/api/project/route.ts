@@ -23,8 +23,6 @@ import { and, asc, eq } from "drizzle-orm";
 import httpErrors from "http-errors";
 import { NextResponse } from "next/server";
 
-export const maxDuration = 20;
-
 export async function GET() {
   try {
     const sessionUser = await getUserFromSession();
