@@ -95,27 +95,12 @@ export async function POST(req: Request) {
       projectId = result[0].projectId;
 
       if (templateId) {
-        // const compositions = await db
-        //   .select({ service: templateComposition.service })
-        //   .from(templateComposition)
-        //   .innerJoin(template, eq(template.id, templateComposition.template))
-        //   .where(and(eq(template.user, userId), eq(template.id, templateId)))
-        //   .orderBy(asc(templateComposition.template));
-
-        const templateExists = await db
-          .select({ id: template.id })
-          .from(template)
-          .where(and(eq(template.id, templateId), eq(template.user, userId)));
-
-        if (templateExists.length === 0)
-          throw httpErrors.NotFound(
-            `template with id [${templateId}] does not exist`,
-          );
-
         const compositions = await db
           .select({ service: templateComposition.service })
           .from(templateComposition)
-          .where(eq(templateComposition.template, templateId));
+          .innerJoin(template, eq(template.id, templateComposition.template))
+          .where(and(eq(template.user, userId), eq(template.id, templateId)))
+          .orderBy(asc(templateComposition.template));
 
         if (compositions.length) {
           const projectCompositions = compositions.map((p) => ({
