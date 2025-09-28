@@ -7,60 +7,135 @@ const codeSnippets = [
   {
     title: ".env",
     language: "bash",
-    code: `# Database Configuration
-DATABASE_URL="postgresql://user:pass@localhost:5432/mydb"
-REDIS_URL="redis://localhost:6379"
+    code: `# POSTGRES CONFIGURATION
+POSTGRES_USER = 
+POSTGRES_PASSWORD = 
+POSTGRES_HOST = 127.0.0.1
+POSTGRES_PORT = 5432
+POSTGRES_SSLMODE = 
 
-# API Keys
-STRIPE_SECRET_KEY="sk_test_..."
-OPENAI_API_KEY="sk-..."
+# GOOGLE_AUTH CONFIGURATION
+GOOGLE_CLIENT_ID = 
+GOOGLE_CLIENT_SECRET = 
+GOOGLE_REDIRECT_URI = 
 
-# App Configuration
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
-JWT_SECRET="your-secret-key"`,
+# LOGGING CONFIGURATION
+LOG_LEVEL = 
+LOG_PATH = 
+LOG_FILE =`,
   },
   {
     title: "TypeScript",
     language: "typescript",
-    code: `interface DatabaseConfig {
-  url: string;
-  maxConnections: number;
-}
+    code: `import 'dotenv/config';
+import { createEnv } from '@t3-oss/env-core';
+import { z } from 'zod';
 
-interface ApiKeys {
-  stripe: string;
-  openai: string;
-}
+export const env = createEnv({
+	server: {
 
-export const config = {
-  database: {
-    url: process.env.DATABASE_URL!,
-    maxConnections: 10
-  },
-  api: {
-    stripe: process.env.STRIPE_SECRET_KEY!,
-    openai: process.env.OPENAI_API_KEY!
-  }
-} as const;`,
+		// POSTGRES Config
+		POSTGRES_USER: z.string(),
+		POSTGRES_PASSWORD: z.string(),
+		POSTGRES_HOST: z.string().optional().default('127.0.0.1'),
+		POSTGRES_PORT: z.string().optional().default('5432'),
+		POSTGRES_SSLMODE: z.string().optional(),
+
+		// GOOGLE_AUTH Config
+		GOOGLE_CLIENT_ID: z.string(),
+		GOOGLE_CLIENT_SECRET: z.string(),
+		GOOGLE_REDIRECT_URI: z.url(),
+
+		// LOGGING Config
+		LOG_LEVEL: z.string().optional(),
+		LOG_PATH: z.string().optional(),
+		LOG_FILE: z.string().optional(),
+	},
+	runtimeEnv: process.env,
+});`,
   },
   {
-    title: "Zod Schema",
-    language: "typescript",
-    code: `import { z } from 'zod';
+    title: "Go",
+    language: "go",
+    code: `package config
 
-export const envSchema = z.object({
-  DATABASE_URL: z.string().url(),
-  REDIS_URL: z.string().url(),
-  STRIPE_SECRET_KEY: z.string().startsWith('sk_'),
-  OPENAI_API_KEY: z.string().startsWith('sk-'),
-  NEXT_PUBLIC_APP_URL: z.string().url(),
-  JWT_SECRET: z.string().min(32)
-});
+import (
+	"log"
 
-export type Env = z.infer<typeof envSchema>;`,
+	"github.com/joho/godotenv"
+	"github.com/kelseyhightower/envconfig"
+)
+
+type PostgresConfiguration struct {
+	POSTGRES_USER string \`envconfig:"POSTGRES_USER" required:"true"\`
+	POSTGRES_PASSWORD string \`envconfig:"POSTGRES_PASSWORD" required:"true"\`
+	POSTGRES_HOST string \`envconfig:"POSTGRES_HOST" default:"127.0.0.1"\`
+	POSTGRES_PORT string \`envconfig:"POSTGRES_PORT" default:"5432"\`
+	POSTGRES_SSLMODE string \`envconfig:"POSTGRES_SSLMODE"\`
+}
+
+type GoogleAuthConfiguration struct {
+	GOOGLE_CLIENT_ID string \`envconfig:"GOOGLE_CLIENT_ID" required:"true"\`
+	GOOGLE_CLIENT_SECRET string \`envconfig:"GOOGLE_CLIENT_SECRET" required:"true"\`
+	GOOGLE_REDIRECT_URI string \`envconfig:"GOOGLE_REDIRECT_URI" required:"true"\`
+}
+
+var (
+	PostgresConfig PostgresConfiguration
+	GoogleAuthConfig GoogleAuthConfiguration
+)
+
+func init() {
+	loadEnv()
+}
+
+func loadEnv() {
+	godotenv.Load()
+
+	if err := envconfig.Process("", &PostgresConfig); err != nil {
+		log.Fatalf("An error occured hile loading environment variables: %v", err)
+	}
+
+	if err := envconfig.Process("", &GoogleAuthConfig); err != nil {
+		log.Fatalf("An error occured hile loading environment variables: %v", err)
+	}
+}`,
+  },
+  {
+    title: "Python",
+    language: "python",
+    code: `from typing import Optional
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import Field, HttpUrl, EmailStr
+
+class PostgresConfig(BaseSettings):
+	model_config = SettingsConfigDict(env_file='.env',case_sensitive=True,extra='ignore')
+
+	POSTGRES_USER: str
+	POSTGRES_PASSWORD: str
+	POSTGRES_HOST: Optional[str] = '127.0.0.1'
+	POSTGRES_PORT: Optional[str] = '5432'
+	POSTGRES_SSLMODE: Optional[str] = None
+
+class GoogleAuthConfig(BaseSettings):
+	model_config = SettingsConfigDict(env_file='.env',case_sensitive=True,extra='ignore')
+
+	GOOGLE_CLIENT_ID: str
+	GOOGLE_CLIENT_SECRET: str
+	GOOGLE_REDIRECT_URI: HttpUrl
+
+class LoggingConfig(BaseSettings):
+	model_config = SettingsConfigDict(env_file='.env',case_sensitive=True,extra='ignore')
+
+	LOG_LEVEL: Optional[str] = None
+	LOG_PATH: Optional[str] = None
+	LOG_FILE: Optional[str] = None
+
+postgres_config = PostgresConfig()
+google_auth_config = GoogleAuthConfig()
+logging_config = LoggingConfig()`,
   },
 ];
-
 export function CodePreview() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
