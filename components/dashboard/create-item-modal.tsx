@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { Template } from "@/db/schema";
+import type { Template } from "@/types";
 import type z from "zod";
 import { createProjectMutationOptions } from "@/lib/queryOptions/project";
 

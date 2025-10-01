@@ -8,7 +8,8 @@ import {
   handleAPIError,
   validateRequestBody,
 } from "@/lib/action";
-import { type SyncProjectSchema, syncProjectSchema } from "@/lib/validation";
+import { syncProjectSchema } from "@/lib/validation";
+import type { SyncProjectSchema } from "@/types";
 
 export async function GET(
   _: Request,

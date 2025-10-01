@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,7 +7,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown, Copy, Download } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
-import type { EnvVariable, Service } from "@/db/schema";
+import type { EnvVariable, Service } from "@/types";
 import type { PreviewType } from "@/types";
 import { DOWNLOAD_FILENAMES, PREVIEW_OPTIONS } from "@/lib/constants";
 import { ConfigGenerator } from "@/lib/config";

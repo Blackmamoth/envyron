@@ -3,7 +3,7 @@ import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 import { getVariablesQueryOptions } from "./queryOptions/envVariable";
 import type { SetStateAction } from "react";
-import type { EnumVariableTypes, EnvVariable } from "@/db/schema";
+import type { EnumVariableTypes, EnvVariable } from "@/types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));

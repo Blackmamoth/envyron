@@ -1,4 +1,4 @@
-import type { EnumVariableTypes, EnvVariable, Service } from "@/db/schema";
+import type { EnumVariableTypes, EnvVariable, Service } from "@/types";
 import { getVariableValueByType } from "../utils";
 
 export function getLanguageType(type: EnumVariableTypes): string {

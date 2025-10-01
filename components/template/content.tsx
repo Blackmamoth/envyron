@@ -6,17 +6,17 @@ import { ChevronDown, ChevronRight, Save, Search } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import type { EnvVariable, Service } from "@/db/schema";
-import { type SyncTemplateSchema, syncTemplateSchema } from "@/lib/validation";
+import type { EnvVariable, Service, SyncTemplateSchema } from "@/types";
+import { syncTemplateSchema } from "@/lib/validation";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 import { Input } from "../ui/input";
-import { getServiceVariables } from "@/lib/utils";
 import { useFetchServices } from "@/hooks/use-service";
 import {
   useFetchTemplateComposition,
   useSyncTemplates,
 } from "@/hooks/use-template";
+import { getServiceVariables } from "@/lib/queryOptions";
 
 type Props = {
   templateId: string;

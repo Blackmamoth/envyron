@@ -21,7 +21,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { Project, Service, Template } from "@/db/schema";
+import type { Project, Service, Template } from "@/types";
 import { useDeleteService, useFetchServices } from "@/hooks/use-service";
 import { useDeleteTemplate, useFetchTemplates } from "@/hooks/use-template";
 import { useDeleteProject, useFetchProjects } from "@/hooks/use-project";

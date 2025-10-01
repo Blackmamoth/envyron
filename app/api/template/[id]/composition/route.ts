@@ -8,7 +8,8 @@ import {
   handleAPIError,
   validateRequestBody,
 } from "@/lib/action";
-import { type SyncTemplateSchema, syncTemplateSchema } from "@/lib/validation";
+import { syncTemplateSchema } from "@/lib/validation";
+import type { SyncTemplateSchema } from "@/types";
 
 export async function GET(
   _: Request,

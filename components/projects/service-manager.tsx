@@ -1,6 +1,6 @@
 "use client";
-import type { EnvVariable, Service } from "@/db/schema";
-import { getServiceVariables } from "@/lib/utils";
+import type { EnvVariable, Service } from "@/types";
+import { getServiceVariables } from "@/lib/queryOptions";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { ServiceManagerLeftSidebar } from "./service-manager-left";
@@ -38,32 +38,11 @@ export function ServiceManager({ projectId }: Props) {
     [projectCompositions],
   );
 
-  const currentProjectServiceIds = useMemo(
-    () => projectItems.map((item) => item.id),
-    [projectItems],
-  );
-
   const projectServices = useMemo(
     () =>
       services.filter((service) => compositionServiceIds.includes(service.id)),
     [services, compositionServiceIds],
   );
-
-  const shouldUpdateServices = useMemo(() => {
-    if (!projectCompositions.length || !services.length) return false;
-
-    return (
-      compositionServiceIds.some(
-        (id) => !currentProjectServiceIds.includes(id),
-      ) ||
-      currentProjectServiceIds.some((id) => !compositionServiceIds.includes(id))
-    );
-  }, [
-    compositionServiceIds,
-    currentProjectServiceIds,
-    projectCompositions.length,
-    services.length,
-  ]);
 
   const loadServiceVariables = useCallback(
     async (serviceIds: string[]) => {

@@ -15,12 +15,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import {
-  type EnvVariableSchema,
-  type EnvVariableTypes,
-  envVariableSchema,
-} from "@/lib/validation";
+import { envVariableSchema } from "@/lib/validation";
 import { useFetchVariables, useSyncVariables } from "@/hooks/use-variable";
+import type { EnumVariableTypes, EnvVariableSchema } from "@/types";
 
 type Props = {
   serviceId: string;
@@ -173,7 +170,7 @@ export default function ServiceBody({ serviceId }: Props) {
                             const current = getValues(`env_variables.${index}`);
                             update(index, {
                               ...current,
-                              type: value as EnvVariableTypes,
+                              type: value as EnumVariableTypes,
                             });
                           }}
                         >

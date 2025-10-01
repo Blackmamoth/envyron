@@ -1,6 +1,5 @@
 import { mutationOptions, queryOptions } from "@tanstack/react-query";
-import type { EnvVariable } from "@/db/schema";
-import type { EnvVariableSchema } from "@/lib/validation";
+import type { EnvVariable, EnvVariableSchema } from "@/types";
 
 const getVariables = async (
   id: string,

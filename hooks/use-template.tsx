@@ -6,7 +6,7 @@ import {
   syncTemplateMutationOptions,
   updateTemplateMutationOptions,
 } from "@/lib/queryOptions/template";
-import type { DeleteItemSchema, UpdateItemSchema } from "@/lib/validation";
+import type { DeleteItemSchema, UpdateItemSchema } from "@/types";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";

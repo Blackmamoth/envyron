@@ -1,4 +1,4 @@
-import type { EnvVariable, Service } from "@/db/schema";
+import type { EnvVariable, Service } from "@/types";
 
 export function generateConfig(
   servicesArr: string[],

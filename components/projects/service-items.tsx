@@ -1,4 +1,4 @@
-import type { EnvVariable, Service } from "@/db/schema";
+import type { EnvVariable, Service } from "@/types";
 import { Switch } from "../ui/switch";
 import { Checkbox } from "../ui/checkbox";
 import { ChevronDown, ChevronRight, Trash2 } from "lucide-react";

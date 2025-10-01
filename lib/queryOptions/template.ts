@@ -1,11 +1,12 @@
 import { mutationOptions, queryOptions } from "@tanstack/react-query";
-import type { Template, TemplateComposition } from "@/db/schema";
 import type {
+  Template,
+  TemplateComposition,
   CreateItemSchema,
   DeleteItemSchema,
   SyncTemplateSchema,
   UpdateItemSchema,
-} from "@/lib/validation";
+} from "@/types";
 
 const createTemplate = async (
   body: CreateItemSchema,

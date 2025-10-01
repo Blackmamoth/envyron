@@ -1,4 +1,4 @@
-import type { Service } from "@/db/schema";
+import type { Service } from "@/types";
 import { type SetStateAction, useMemo } from "react";
 import {
   Dialog,

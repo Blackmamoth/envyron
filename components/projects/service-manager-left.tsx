@@ -1,4 +1,4 @@
-import type { EnvVariable, Service } from "@/db/schema";
+import type { EnvVariable, Service } from "@/types";
 import {
   type SetStateAction,
   useEffect,

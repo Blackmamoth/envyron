@@ -1,10 +1,10 @@
 import { mutationOptions, queryOptions } from "@tanstack/react-query";
-import type { Service } from "@/db/schema";
 import type {
+  Service,
   CreateItemSchema,
   DeleteItemSchema,
   UpdateItemSchema,
-} from "@/lib/validation";
+} from "@/types";
 
 const createService = async (
   body: CreateItemSchema,

@@ -1,4 +1,4 @@
-import type { EnvVariable } from "@/db/schema";
+import type { EnvVariable, DeleteItemSchema, UpdateItemSchema } from "@/types";
 import {
   deleteProjectMutationOptions,
   getProjectCompositionQueryOptions,
@@ -7,8 +7,7 @@ import {
   syncProjectMutationOptions,
   updateProjectMutationOptions,
 } from "@/lib/queryOptions/project";
-import { getServiceVariables } from "@/lib/utils";
-import type { DeleteItemSchema, UpdateItemSchema } from "@/lib/validation";
+import { getServiceVariables } from "@/lib/queryOptions";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { type SetStateAction, useEffect, useState } from "react";
 import { toast } from "sonner";

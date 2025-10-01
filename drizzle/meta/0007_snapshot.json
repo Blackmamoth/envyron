@@ -94,12 +94,8 @@
           "name": "account_user_id_user_id_fk",
           "tableFrom": "account",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -198,12 +194,8 @@
           "name": "env_variable_service_service_id_fk",
           "tableFrom": "env_variable",
           "tableTo": "service",
-          "columnsFrom": [
-            "service"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["service"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -292,12 +284,8 @@
           "name": "project_user_user_id_fk",
           "tableFrom": "project",
           "tableTo": "user",
-          "columnsFrom": [
-            "user"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -305,12 +293,8 @@
           "name": "project_template_template_id_fk",
           "tableFrom": "project",
           "tableTo": "template",
-          "columnsFrom": [
-            "template"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["template"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -358,12 +342,8 @@
           "name": "project_composition_project_project_id_fk",
           "tableFrom": "project_composition",
           "tableTo": "project",
-          "columnsFrom": [
-            "project"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["project"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -371,12 +351,8 @@
           "name": "project_composition_service_service_id_fk",
           "tableFrom": "project_composition",
           "tableTo": "service",
-          "columnsFrom": [
-            "service"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["service"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -384,10 +360,7 @@
       "compositePrimaryKeys": {
         "project_composition_project_service_pk": {
           "name": "project_composition_project_service_pk",
-          "columns": [
-            "project",
-            "service"
-          ]
+          "columns": ["project", "service"]
         }
       },
       "uniqueConstraints": {},
@@ -445,12 +418,8 @@
           "name": "service_user_user_id_fk",
           "tableFrom": "service",
           "tableTo": "user",
-          "columnsFrom": [
-            "user"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -521,12 +490,8 @@
           "name": "session_user_id_user_id_fk",
           "tableFrom": "session",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -536,9 +501,7 @@
         "session_token_unique": {
           "name": "session_token_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "token"
-          ]
+          "columns": ["token"]
         }
       },
       "policies": {},
@@ -595,12 +558,8 @@
           "name": "template_user_user_id_fk",
           "tableFrom": "template",
           "tableTo": "user",
-          "columnsFrom": [
-            "user"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -648,12 +607,8 @@
           "name": "template_composition_template_template_id_fk",
           "tableFrom": "template_composition",
           "tableTo": "template",
-          "columnsFrom": [
-            "template"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["template"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -661,12 +616,8 @@
           "name": "template_composition_service_service_id_fk",
           "tableFrom": "template_composition",
           "tableTo": "service",
-          "columnsFrom": [
-            "service"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["service"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -674,10 +625,7 @@
       "compositePrimaryKeys": {
         "template_composition_template_service_pk": {
           "name": "template_composition_template_service_pk",
-          "columns": [
-            "template",
-            "service"
-          ]
+          "columns": ["template", "service"]
         }
       },
       "uniqueConstraints": {},
@@ -742,9 +690,7 @@
         "user_email_unique": {
           "name": "user_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},

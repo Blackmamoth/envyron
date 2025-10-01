@@ -1,11 +1,11 @@
 import { mutationOptions, queryOptions } from "@tanstack/react-query";
-import type { Project } from "@/db/schema";
 import type {
+  Project,
   CreateProjectSchema,
   DeleteItemSchema,
   SyncProjectSchema,
   UpdateItemSchema,
-} from "@/lib/validation";
+} from "@/types";
 
 const createProject = async (
   body: CreateProjectSchema,
