@@ -1,32 +1,9 @@
-import type { QueryClient } from "@tanstack/react-query";
+import type { EnumVariableTypes } from "@/types";
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { getVariablesQueryOptions } from "./queryOptions/envVariable";
-import type { SetStateAction } from "react";
-import type { EnumVariableTypes, EnvVariable } from "@/types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
-}
-
-export async function getServiceVariables(
-  queryClient: QueryClient,
-  serviceId: string,
-  setServiceVariables: React.Dispatch<
-    SetStateAction<Record<string, EnvVariable[]>>
-  >,
-) {
-  try {
-    const result = await queryClient.fetchQuery(
-      getVariablesQueryOptions(serviceId),
-    );
-    setServiceVariables((prev) => ({
-      ...prev,
-      [serviceId]: result.variables,
-    }));
-  } catch (error) {
-    console.error(error);
-  }
 }
 
 export function toCamelCase(text: string): string {
