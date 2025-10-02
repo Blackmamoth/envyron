@@ -1,0 +1,24 @@
+{
+  "name": "envyron",
+  "type": "module",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "bun@1.2.22",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "format": "turbo run format"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "turbo": "^2.5.8"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
