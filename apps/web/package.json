@@ -8,8 +8,8 @@
     "start": "next start",
     "lint": "biome lint --write",
     "format": "biome format --write",
-    "db:dev:up": "docker compose --env-file .env -f ./docker/dev/docker-compose.service.yml up -d",
-    "db:dev:down": "docker compose --env-file .env -f ./docker/dev/docker-compose.service.yml down -v",
+    "db:dev:up": "docker compose --env-file .env -f ../../docker/dev/docker-compose.service.yml up -d",
+    "db:dev:down": "docker compose --env-file .env -f ../../docker/dev/docker-compose.service.yml down -v",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio"
