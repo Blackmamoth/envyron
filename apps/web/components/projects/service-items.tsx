@@ -1,6 +1,6 @@
 import type { EnvVariable, Service } from "@envyron/types";
-import { Switch } from "../ui/switch";
-import { Checkbox } from "../ui/checkbox";
+import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ChevronDown, ChevronRight, Trash2 } from "lucide-react";
 
 type Props = {

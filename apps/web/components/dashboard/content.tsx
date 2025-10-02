@@ -25,13 +25,13 @@ import type { Project, Service, Template } from "@envyron/types";
 import { useDeleteService, useFetchServices } from "@/hooks/use-service";
 import { useDeleteTemplate, useFetchTemplates } from "@/hooks/use-template";
 import { useDeleteProject, useFetchProjects } from "@/hooks/use-project";
-import { Dialog } from "@radix-ui/react-dialog";
 import {
+  Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "../ui/dialog";
+} from "@/components/ui/dialog";
 
 export default function DashboardContent() {
   const [activeTab, setActiveTab] = useState("projects");

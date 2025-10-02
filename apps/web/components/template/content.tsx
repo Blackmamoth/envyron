@@ -8,9 +8,9 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { EnvVariable, Service, SyncTemplateSchema } from "@envyron/types";
 import { syncTemplateSchema } from "@envyron/lib/validation";
-import { Button } from "../ui/button";
-import { Checkbox } from "../ui/checkbox";
-import { Input } from "../ui/input";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import { useFetchServices } from "@/hooks/use-service";
 import {
   useFetchTemplateComposition,
