@@ -1,5 +1,5 @@
 import z from "zod";
-import { enumVariableType } from "@/db/schema";
+import { enumVariableType } from "@envyron/db/schema";
 
 export const envVariableTypeEnum = z.enum(enumVariableType.enumValues);
 

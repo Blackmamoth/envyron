@@ -1,0 +1,19 @@
+{
+  "name": "@envyron/config",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@t3-oss/env-nextjs": "^0.13.8",
+    "zod": "^4.1.11"
+  },
+  "exports": {
+    ".": "./index.ts"
+  }
+}

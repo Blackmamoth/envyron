@@ -1,10 +1,10 @@
-import { db } from "@/db";
+import { db } from "@envyron/db";
 import {
   project,
   projectComposition,
   template,
   templateComposition,
-} from "@/db/schema";
+} from "@envyron/db/schema";
 import {
   getUserFromSession,
   handleAPIError,

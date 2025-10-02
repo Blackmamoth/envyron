@@ -6,7 +6,7 @@ import type {
   service,
   template,
   templateComposition,
-} from "@/db/schema";
+} from "@envyron/db/schema";
 import type { InferSelectModel } from "drizzle-orm";
 
 export type Service = InferSelectModel<typeof service>;

@@ -1,8 +1,8 @@
 import { and, asc, eq } from "drizzle-orm";
 import httpErrors from "http-errors";
 import { NextResponse } from "next/server";
-import { db } from "@/db";
-import { service } from "@/db/schema";
+import { db } from "@envyron/db";
+import { service } from "@envyron/db/schema";
 import {
   getUserFromSession,
   handleAPIError,
