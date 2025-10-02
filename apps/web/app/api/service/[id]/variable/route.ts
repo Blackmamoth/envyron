@@ -8,8 +8,8 @@ import {
   handleAPIError,
   validateRequestBody,
 } from "@/lib/action";
-import { envVariableSchema } from "@/lib/validation";
-import type { EnvVariableSchema } from "@/types";
+import { envVariableSchema } from "@envyron/lib/validation";
+import type { EnvVariableSchema } from "@envyron/types";
 
 export async function GET(
   _: Request,

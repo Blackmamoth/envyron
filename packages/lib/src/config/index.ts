@@ -2,7 +2,7 @@ import * as Go from "./go";
 import * as TS from "./ts";
 import * as Env from "./env";
 import * as Python from "./py";
-import type { EnvVariable, Service } from "@/types";
+import type { EnvVariable, Service } from "@envyron/types";
 
 export const ConfigGenerator: {
   [key: string]: (
@@ -20,3 +20,5 @@ export const ConfigGenerator: {
   Env: Env.generateConfig,
   Python: Python.generateConfig,
 };
+
+export const generateEnvConfig = Env.generateConfig

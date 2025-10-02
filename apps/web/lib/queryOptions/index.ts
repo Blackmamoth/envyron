@@ -1,4 +1,4 @@
-import type { EnvVariable } from "@/types";
+import type { EnvVariable } from "@envyron/types";
 import type { QueryClient } from "@tanstack/react-query";
 import type { SetStateAction } from "react";
 import { getVariablesQueryOptions } from "./envVariable";

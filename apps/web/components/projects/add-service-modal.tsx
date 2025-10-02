@@ -1,4 +1,4 @@
-import type { Service } from "@/types";
+import type { Service } from "@envyron/types";
 import { type SetStateAction, useMemo } from "react";
 import {
   Dialog,

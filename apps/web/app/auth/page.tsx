@@ -1,7 +1,7 @@
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { AuthForm } from "@/components/auth-form";
-import { auth } from "@/lib/auth";
+import { auth } from "@envyron/auth/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 

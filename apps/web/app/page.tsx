@@ -3,7 +3,7 @@ import { Footer } from "@/components/footer";
 import { GitHubSection } from "@/components/github-section";
 import { HeroSection } from "@/components/hero-section";
 import { Navigation } from "@/components/navigation";
-import { auth } from "@/lib/auth";
+import { auth } from "@envyron/auth/server";
 import { headers } from "next/headers";
 
 export default async function LandingPage() {

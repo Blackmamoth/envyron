@@ -11,9 +11,14 @@
   "scripts": {
     "dev": "turbo run dev --parallel",
     "dev:web": "bun run turbo dev --filter @envyron/web",
+    "db:dev:up": "bun run --cwd packages/db db:dev:up",
+    "db:dev:down": "bun run --cwd packages/db db:dev:down",
+    "db:generate": "bun run --cwd packages/db db:generate",
+    "db:migrate": "bun run --cwd packages/db db:migrate",
+    "db:studio": "bun run --cwd packages/db db:studio",
     "build": "turbo run build",
-    "lint": "turbo run lint",
-    "format": "turbo run format"
+    "lint": "biome lint --write",
+    "format": "biome format --write"
   },
   "devDependencies": {
     "@types/bun": "latest",

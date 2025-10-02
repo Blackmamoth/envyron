@@ -1,4 +1,4 @@
-import type { EnvVariable, Service } from "@/types";
+import type { EnvVariable, Service } from "@envyron/types";
 import {
   type SetStateAction,
   useEffect,

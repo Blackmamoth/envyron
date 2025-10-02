@@ -6,7 +6,7 @@ import type {
   syncProjectSchema,
   syncTemplateSchema,
   updateItemSchema,
-} from "@/lib/validation";
+} from "@envyron/lib/validation";
 import type { z } from "zod";
 
 export type CreateItemSchema = z.infer<typeof createItemSchema>;

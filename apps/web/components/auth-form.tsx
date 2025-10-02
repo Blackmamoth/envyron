@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { signIn, signUp } from "@/lib/auth-client";
+import { authClient } from "@envyron/auth/client";
 
 const signInSchema = z.object({
   email: z.email(),
@@ -36,7 +36,7 @@ export function AuthForm() {
   const router = useRouter();
 
   const handleOAuthLogin = async (provider: "google" | "github") => {
-    await signIn.social(
+    await authClient.signIn.social(
       { provider, callbackURL: "/dashboard" },
       {
         onRequest: () => setLoading(true),
@@ -56,7 +56,7 @@ export function AuthForm() {
   const handleSignInSubmit = async ({ email, password }: SignInSchema) => {
     if (Object.keys(signInForm.formState.errors).length !== 0) return;
 
-    await signIn.email(
+    await authClient.signIn.email(
       { email, password, callbackURL: "/dashboard" },
       {
         onRequest: () => setLoading(true),
@@ -80,7 +80,7 @@ export function AuthForm() {
   }: SignUpSchema) => {
     if (Object.keys(signUpForm.formState.errors).length !== 0) return;
 
-    await signUp.email(
+    await authClient.signUp.email(
       { name, email, password, callbackURL: "/dashboard" },
       {
         onRequest: () => setLoading(true),

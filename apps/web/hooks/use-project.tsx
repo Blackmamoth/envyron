@@ -1,4 +1,4 @@
-import type { EnvVariable, DeleteItemSchema, UpdateItemSchema } from "@/types";
+import type { EnvVariable, DeleteItemSchema, UpdateItemSchema } from "@envyron/types";
 import {
   deleteProjectMutationOptions,
   getProjectCompositionQueryOptions,

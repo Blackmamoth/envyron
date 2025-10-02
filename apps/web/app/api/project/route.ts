@@ -14,13 +14,13 @@ import {
   createProjectSchema,
   updateItemSchema,
   deleteItemSchema,
-} from "@/lib/validation";
+} from "@envyron/lib/validation";
 import type {
   CreateProjectSchema,
   DeleteItemSchema,
   Item,
   UpdateItemSchema,
-} from "@/types";
+} from "@envyron/types";
 import { and, asc, eq } from "drizzle-orm";
 import httpErrors from "http-errors";
 import { NextResponse } from "next/server";

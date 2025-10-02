@@ -2,7 +2,7 @@ import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "@envyron/db";
 import * as schema from "@envyron/db/schema";
-import { env } from "@envyron/config";
+import { env } from "@envyron/lib";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {

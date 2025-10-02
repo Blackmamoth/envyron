@@ -1,5 +1,5 @@
 {
-  "name": "@envyron/config",
+  "name": "@envyron/auth",
   "module": "index.ts",
   "type": "module",
   "private": true,
@@ -7,13 +7,12 @@
     "@types/bun": "latest"
   },
   "peerDependencies": {
+    "better-auth": "^1.3.24",
     "typescript": "^5"
   },
-  "dependencies": {
-    "@t3-oss/env-nextjs": "^0.13.8",
-    "zod": "^4.1.11"
-  },
   "exports": {
-    ".": "./index.ts"
+    ".": "./src/index.ts",
+    "./server": "./src/server.ts",
+    "./client": "./src/client.ts"
   }
 }

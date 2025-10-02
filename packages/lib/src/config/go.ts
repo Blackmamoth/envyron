@@ -1,4 +1,4 @@
-import type { EnumVariableTypes, EnvVariable, Service } from "@/types";
+import type { EnumVariableTypes, EnvVariable, Service } from "@envyron/types";
 import { toPascalCase } from "../utils";
 
 function getLanguageType(type: EnumVariableTypes): string {

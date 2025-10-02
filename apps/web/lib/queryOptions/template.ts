@@ -6,7 +6,7 @@ import type {
   DeleteItemSchema,
   SyncTemplateSchema,
   UpdateItemSchema,
-} from "@/types";
+} from "@envyron/types";
 
 const createTemplate = async (
   body: CreateItemSchema,

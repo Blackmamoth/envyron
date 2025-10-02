@@ -2,7 +2,7 @@ import httpErrors from "http-errors";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { ZodError, type ZodType } from "zod";
-import { auth } from "./auth";
+import { auth } from "@envyron/auth/server";
 import { DrizzleError } from "drizzle-orm";
 
 export const getUserFromSession = async () => {

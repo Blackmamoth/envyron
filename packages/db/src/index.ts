@@ -1,4 +1,4 @@
-import { env } from "@envyron/config";
+import { env } from "@envyron/lib";
 import "dotenv/config";
 import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";

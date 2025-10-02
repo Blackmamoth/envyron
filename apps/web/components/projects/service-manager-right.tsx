@@ -7,11 +7,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ChevronDown, Copy, Download } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
-import type { EnvVariable, Service } from "@/types";
-import type { PreviewType } from "@/types";
-import { DOWNLOAD_FILENAMES, PREVIEW_OPTIONS } from "@/lib/constants";
-import { ConfigGenerator } from "@/lib/config";
-import { generateConfig as generateEnvConfig } from "@/lib/config/env";
+import type { EnvVariable, Service } from "@envyron/types";
+import type { PreviewType } from "@envyron/types";
+import { DOWNLOAD_FILENAMES, PREVIEW_OPTIONS } from "@envyron/lib/constants";
+import { ConfigGenerator, generateEnvConfig } from "@envyron/lib/config";
 
 type Props = {
   enabledServices: string[];

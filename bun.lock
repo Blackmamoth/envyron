@@ -63,16 +63,13 @@
         "typescript": "^5",
       },
     },
-    "packages/config": {
-      "name": "@envyron/config",
-      "dependencies": {
-        "@t3-oss/env-nextjs": "^0.13.8",
-        "zod": "^4.1.11",
-      },
+    "packages/auth": {
+      "name": "@envyron/auth",
       "devDependencies": {
         "@types/bun": "latest",
       },
       "peerDependencies": {
+        "better-auth": "^1.3.24",
         "typescript": "^5",
       },
     },
@@ -88,6 +85,28 @@
         "@types/pg": "^8.15.5",
         "drizzle-kit": "^0.31.5",
         "tsx": "^4.20.6",
+      },
+      "peerDependencies": {
+        "typescript": "^5",
+      },
+    },
+    "packages/lib": {
+      "name": "@envyron/lib",
+      "dependencies": {
+        "@t3-oss/env-nextjs": "^0.13.8",
+        "zod": "^4.1.11",
+      },
+      "devDependencies": {
+        "@types/bun": "latest",
+      },
+      "peerDependencies": {
+        "typescript": "^5",
+      },
+    },
+    "packages/types": {
+      "name": "@envyron/types",
+      "devDependencies": {
+        "@types/bun": "latest",
       },
       "peerDependencies": {
         "typescript": "^5",
@@ -125,9 +144,13 @@
 
     "@emnapi/runtime": ["@emnapi/runtime@1.5.0", "", { "dependencies": { "tslib": "^2.4.0" } }, "sha512-97/BJ3iXHww3djw6hYIfErCZFee7qCtrneuLa20UXFCOTCfBM2cvQHjWJ2EG0s0MtdNwInarqCTz35i4wWXHsQ=="],
 
-    "@envyron/config": ["@envyron/config@workspace:packages/config"],
+    "@envyron/auth": ["@envyron/auth@workspace:packages/auth"],
 
     "@envyron/db": ["@envyron/db@workspace:packages/db"],
+
+    "@envyron/lib": ["@envyron/lib@workspace:packages/lib"],
+
+    "@envyron/types": ["@envyron/types@workspace:packages/types"],
 
     "@envyron/web": ["@envyron/web@workspace:apps/web"],
 

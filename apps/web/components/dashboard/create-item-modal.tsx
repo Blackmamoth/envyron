@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { createServiceMutationOptions } from "@/lib/queryOptions/service";
 import { createTemplateMutationOptions } from "@/lib/queryOptions/template";
-import { createItemSchema, createProjectSchema } from "@/lib/validation";
+import { createItemSchema, createProjectSchema } from "@envyron/lib/validation";
 import {
   Select,
   SelectItem,
@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { Template } from "@/types";
+import type { Template } from "@envyron/types";
 import type z from "zod";
 import { createProjectMutationOptions } from "@/lib/queryOptions/project";
 

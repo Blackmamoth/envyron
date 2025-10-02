@@ -12,13 +12,13 @@ import {
   createItemSchema,
   updateItemSchema,
   deleteItemSchema,
-} from "@/lib/validation";
+} from "@envyron/lib/validation";
 import type {
   CreateItemSchema,
   DeleteItemSchema,
   Item,
   UpdateItemSchema,
-} from "@/types";
+} from "@envyron/types";
 
 export async function GET() {
   try {

@@ -4,7 +4,7 @@ import type {
   CreateItemSchema,
   DeleteItemSchema,
   UpdateItemSchema,
-} from "@/types";
+} from "@envyron/types";
 
 const createService = async (
   body: CreateItemSchema,

@@ -15,9 +15,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { envVariableSchema } from "@/lib/validation";
+import { envVariableSchema } from "@envyron/lib/validation";
 import { useFetchVariables, useSyncVariables } from "@/hooks/use-variable";
-import type { EnumVariableTypes, EnvVariableSchema } from "@/types";
+import type { EnumVariableTypes, EnvVariableSchema } from "@envyron/types";
 
 type Props = {
   serviceId: string;

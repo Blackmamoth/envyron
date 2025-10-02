@@ -1,4 +1,4 @@
-import type { PreviewType } from "@/types";
+import type { PreviewType } from "@envyron/types";
 
 export const PREVIEW_OPTIONS: PreviewType[] = [
   ".env",

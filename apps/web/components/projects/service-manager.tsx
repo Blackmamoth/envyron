@@ -1,5 +1,5 @@
 "use client";
-import type { EnvVariable, Service } from "@/types";
+import type { EnvVariable, Service } from "@envyron/types";
 import { getServiceVariables } from "@/lib/queryOptions";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";

@@ -1,4 +1,4 @@
-import type { EnvVariable, Service } from "@/types";
+import type { EnvVariable, Service } from "@envyron/types";
 
 export function generateConfig(
   servicesArr: string[],

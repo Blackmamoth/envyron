@@ -1,6 +1,6 @@
 import { ProjectsHeader } from "@/components/projects/header";
 import { ServiceManager } from "@/components/projects/service-manager";
-import { auth } from "@/lib/auth";
+import { auth } from "@envyron/auth/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
