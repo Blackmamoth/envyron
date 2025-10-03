@@ -46,7 +46,7 @@ export function generateConfig(
     const service = projectItems.find((item) => item.id === serviceId);
     if (!service) return;
 
-    content += `type ${toPascalCase(service.name)}Configuration struct {\n`;
+    const structLines: string[][] = [];
 
     const envVariables = serviceVariables[serviceId];
     if (envVariables && envVariables.length > 0) {
@@ -59,35 +59,61 @@ export function generateConfig(
           variable.required;
 
         if (isIncluded) {
-          content += `\t${variable.key} ${getLanguageType(variable.type)} \`envconfig:"${variable.key}"`;
+          const typeStr = getLanguageType(variable.type);
+          let tagStr = `envconfig:"${variable.key}"`;
 
           if (isRequired) {
-            content += ' required:"true"';
+            tagStr += ' required:"true"';
           }
 
           if (variable.defaultValue) {
-            content += ` default:"${variable.defaultValue}"`;
+            tagStr += ` default:"${variable.defaultValue}"`;
           }
 
-          content += "`\n";
+          structLines.push([variable.key, typeStr, `\`${tagStr}\``]);
         }
       });
     }
 
+    const alignedStruct = alignColumns(structLines);
+
+    content += `type ${toPascalCase(service.name)}Configuration struct {\n`;
+
+    alignedStruct.forEach((line) => {
+      content += `\t${line}\n`;
+    });
+
     content += "}\n\n";
   });
 
-  content += "var (\n";
+  // content += "var (\n";
+  //
+  // servicesArr.forEach((serviceId) => {
+  //   const service = projectItems.find((item) => item.id === serviceId);
+  //   if (!service) return;
+  //
+  //   const serviceName = toPascalCase(service.name);
+  //
+  //   content += `\t${serviceName}Config\t${serviceName}Configuration\n`;
+  // });
+  //
+  // content += ")\n\n";
 
+  const varLines: string[][] = [];
   servicesArr.forEach((serviceId) => {
     const service = projectItems.find((item) => item.id === serviceId);
     if (!service) return;
 
     const serviceName = toPascalCase(service.name);
-
-    content += `\t${serviceName}Config\t${serviceName}Configuration\n`;
+    varLines.push([`${serviceName}Config`, `${serviceName}Configuration`]);
   });
 
+  const alignedVars = alignColumns(varLines);
+
+  content += "var (\n";
+  alignedVars.forEach((line) => {
+    content += `\t${line}\n`;
+  });
   content += ")\n\n";
 
   content += "func init() {\n\tloadEnv()\n}\n\n";
@@ -101,10 +127,33 @@ export function generateConfig(
     const serviceName = toPascalCase(service.name);
 
     content += `\tif err := envconfig.Process("", &${serviceName}Config); err != nil {\n`;
-    content += `\t\tlog.Fatalf("An error occured hile loading environment variables: %v", err)\n\t}\n\n`;
+    content += `\t\tlog.Fatalf("An error occured while loading environment variables: %v", err)\n\t}\n\n`;
   });
 
   content += "}\n\n";
 
   return content.trim();
+}
+
+function alignColumns(rows: string[][]): string[] {
+  if (rows.length === 0) return [];
+
+  const colWidths: number[] = [];
+  rows.forEach((row) => {
+    row.forEach((cell, colIndex) => {
+      colWidths[colIndex] = Math.max(colWidths[colIndex] || 0, cell.length);
+    });
+  });
+
+  return rows.map((row) =>
+    row
+      .map((cell, colIndex) => {
+        const pad =
+          colIndex === row.length - 1
+            ? ""
+            : " ".repeat(colWidths[colIndex] - cell.length + 1);
+        return cell + pad;
+      })
+      .join(""),
+  );
 }
