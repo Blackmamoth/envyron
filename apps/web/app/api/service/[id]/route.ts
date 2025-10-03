@@ -1,0 +1,38 @@
+import { and, eq } from "drizzle-orm";
+import httpError from "http-errors";
+import { NextResponse } from "next/server";
+import { db } from "@envyron/db";
+import { service } from "@envyron/db/schema";
+import { getUserFromSession, handleAPIError } from "@/lib/action";
+
+export async function GET(
+  _: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  try {
+    const sessionUser = await getUserFromSession();
+
+    const userId = sessionUser.id;
+
+    const { id: serviceId } = await params;
+
+    const serviceRecord = await db
+      .select()
+      .from(service)
+      .where(and(eq(service.id, serviceId), eq(service.user, userId)))
+      .limit(1);
+
+    if (serviceRecord.length === 0) {
+      throw new httpError.NotFound(
+        `service with id [${serviceId}] does not exist`,
+      );
+    }
+
+    return NextResponse.json({
+      service: serviceRecord[0],
+      message: "service fetched",
+    });
+  } catch (error) {
+    return handleAPIError(error);
+  }
+}
