@@ -72,7 +72,7 @@ export async function PATCH(
     }
 
     await db.transaction(async (tx) => {
-      const keys = env_variables.map((v) => v.key);
+      const keys = env_variables.map((v) => v.key.toUpperCase());
 
       await tx
         .delete(envVariable)
@@ -85,6 +85,7 @@ export async function PATCH(
 
       const variables = env_variables.map((v) => ({
         ...v,
+        key: v.key.toUpperCase(),
         service: serviceId,
       }));
 

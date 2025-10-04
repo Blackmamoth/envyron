@@ -1,5 +1,76 @@
 import type { EnumVariableTypes, EnvVariable, Service } from "@envyron/types";
 import { toPascalCase } from "../utils";
+import { DURATION_REGEX, FILEPATH_REGEX } from "../constants";
+
+const GO_STDLIB_IMPORTS = ["encoding/json", "fmt", "log", "regexp"];
+const GO_EXTERNALLIB_IMPORTS = [
+  "github.com/joho/godotenv",
+  "github.com/kelseyhightower/envconfig",
+];
+
+const JSONMapType = `type JSONMap map[string]any
+
+func (j *JSONMap) Decode(value string) error {
+	return json.Unmarshal([]byte(value), j)
+}\n\n`;
+
+const EmailType = `type Email string
+
+func (e *Email) Decode(value string) error {
+	emailRegex := regexp.MustCompile(\`^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$\`)
+	if !emailRegex.MatchString(value) {
+		return fmt.Errorf("invalid email format: %s", value)
+	}
+	*e = Email(value)
+	return nil
+}\n\n`;
+
+const URLType = `type URL string
+
+func (u *URL) Decode(value string) error {
+	urlRegex := regexp.MustCompile("(?i)^https?://[^\s/$.?#].[^\s]*$")
+	if !urlRegex.MatchString(value) {
+		return fmt.Errorf("invalid URL format: %s", value)
+	}
+	*u = URL(value)
+	return nil
+}
+`;
+
+const DurationType = `type Duration string
+
+func (d *Duration) Decode(value string) error {
+	durationRegex := regexp.MustCompile(\`${DURATION_REGEX}\`)
+	if !durationRegex.MatchString(value) {
+		return fmt.Errorf("invalid Duration format: %s. Use e.g. 30s, 5m, 2h, 7d.", value)
+	}
+	*d = Duration(value)
+	return nil
+}\n\n`;
+
+const FilepathType = `type Filepath string
+
+func (f *Filepath) Decode(value string) error {
+	filepathRegex := regexp.MustCompile(\`${FILEPATH_REGEX}\`)
+	if !filepathRegex.MatchString(value) {
+		return fmt.Errorf("invalid file path format: %s", value)
+	}
+	*f = Duration(value)
+	return nil
+}\n\n`;
+
+const customTypes: { [key in EnumVariableTypes]: string } = {
+  STRING: "",
+  INT: "",
+  FLOAT: "",
+  BOOLEAN: "",
+  URL: URLType,
+  EMAIL: EmailType,
+  DURATION: DurationType,
+  FILEPATH: FilepathType,
+  ARRAY: "",
+  JSON: JSONMapType,
+};
 
 function getLanguageType(type: EnumVariableTypes): string {
   switch (type) {
@@ -12,19 +83,39 @@ function getLanguageType(type: EnumVariableTypes): string {
     case "BOOLEAN":
       return "bool";
     case "URL":
-      return "string";
+      return "URL";
     case "EMAIL":
-      return "string";
+      return "Email";
     case "DURATION":
-      return "string";
+      return "Duration";
     case "FILEPATH":
-      return "str";
+      return "Filepath";
     case "ARRAY":
       return "[]string";
     case "JSON":
-      return "any";
+      return "JSONMap";
   }
 }
+
+const hasType = (
+  serviceArr: string[],
+  serviceVariables: Record<string, EnvVariable[]>,
+  variableConfigs: Record<
+    string,
+    Record<string, { included: boolean; required: boolean }>
+  >,
+  type: EnumVariableTypes,
+) => {
+  return serviceArr.some((serviceId) => {
+    const envVariables = serviceVariables[serviceId];
+    if (!envVariables) return false;
+
+    return envVariables.some((variable) => {
+      const isIncluded = variableConfigs[serviceId]?.[variable.key]?.included;
+      return isIncluded && variable.type === type;
+    });
+  });
+};
 
 export function generateConfig(
   servicesArr: string[],
@@ -39,8 +130,30 @@ export function generateConfig(
 
   let content = "package config\n\n";
 
-  content +=
-    'import (\n\t"log"\n\n\t"github.com/joho/godotenv"\n\t"github.com/kelseyhightower/envconfig"\n)\n\n';
+  content += "import (";
+
+  GO_STDLIB_IMPORTS.forEach((lib) => {
+    content += `\n\t"${lib}"`;
+  });
+
+  content += "\n";
+
+  GO_EXTERNALLIB_IMPORTS.forEach((lib) => {
+    content += `\n\t"${lib}"`;
+  });
+
+  content += "\n)\n\n";
+
+  Object.keys(customTypes).forEach((key) => {
+    const typedKey = key as keyof typeof customTypes;
+
+    if (
+      hasType(servicesArr, serviceVariables, variableConfigs, typedKey) &&
+      customTypes[typedKey] !== ""
+    ) {
+      content += `${customTypes[typedKey]}`;
+    }
+  });
 
   servicesArr.forEach((serviceId) => {
     const service = projectItems.find((item) => item.id === serviceId);
@@ -85,19 +198,6 @@ export function generateConfig(
 
     content += "}\n\n";
   });
-
-  // content += "var (\n";
-  //
-  // servicesArr.forEach((serviceId) => {
-  //   const service = projectItems.find((item) => item.id === serviceId);
-  //   if (!service) return;
-  //
-  //   const serviceName = toPascalCase(service.name);
-  //
-  //   content += `\t${serviceName}Config\t${serviceName}Configuration\n`;
-  // });
-  //
-  // content += ")\n\n";
 
   const varLines: string[][] = [];
   servicesArr.forEach((serviceId) => {

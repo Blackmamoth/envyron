@@ -1,5 +1,6 @@
 import type { EnumVariableTypes, EnvVariable, Service } from "@envyron/types";
 import { getVariableValueByType } from "../utils";
+import { DURATION_REGEX, FILEPATH_REGEX } from "../constants";
 
 export function getLanguageType(type: EnumVariableTypes): string {
   switch (type) {
@@ -16,13 +17,19 @@ export function getLanguageType(type: EnumVariableTypes): string {
     case "EMAIL":
       return "z.email()";
     case "DURATION":
-      return "z.string()";
+      return `z.string().regex(/${DURATION_REGEX}/, "Invalid duration format. Use e.g. 30s, 5m, 2h, 7d.")`;
     case "FILEPATH":
-      return "z.string()";
+      return `z.string()\n\t\t\t.regex(/${FILEPATH_REGEX}/, "Invalid file path format.")\n\t\t\t.refine(val => !val.includes(".."), "Path traversal not allowed")`;
     case "ARRAY":
-      return "z.array(z.string())";
+      return "z.string().transform(val => val.split(',').map(s => s.trim()))";
     case "JSON":
-      return "z.string().transform(val => JSON.parse(val))";
+      return `z.string().transform((val, ctx) => {
+        \ttry {
+        \t  return JSON.parse(val);
+        \t} catch (error) {
+        \t  ctx.addIssue("Invalid JSON string");
+        \t}
+      })`;
   }
 }
 

@@ -14,7 +14,7 @@ function getLanguageType(type: EnumVariableTypes): string {
     case "URL":
       return "HttpUrl";
     case "EMAIL":
-      return "str";
+      return "EmailStr";
     case "DURATION":
       return "str";
     case "FILEPATH":
@@ -39,7 +39,7 @@ export function generateConfig(
   if (servicesArr.length === 0) return content;
 
   content +=
-    "from typing import Optional\nfrom pydantic_settings import BaseSettings, SettingsConfigDict\nfrom pydantic import Field, HttpUrl, EmailStr\n\n";
+    "from typing import Any\nfrom pydantic_settings import BaseSettings, SettingsConfigDict\nfrom pydantic import Field, HttpUrl, EmailStr\n\n";
 
   servicesArr.forEach((serviceId) => {
     const service = projectItems.find((s) => s.id === serviceId);
@@ -66,11 +66,11 @@ export function generateConfig(
 
           const type = getLanguageType(variable.type);
 
-          content += isRequired ? type : `Optional[${type}]`;
+          content += isRequired ? type : `${type} | None`;
 
           if (variable.defaultValue) {
             content += ` = ${getVariableValueByType(variable.defaultValue, variable.type)}`;
-          } else if (!variable.required) {
+          } else if (!isRequired && !variable.defaultValue) {
             content += ` = None`;
           }
 

@@ -18,6 +18,7 @@ import { Switch } from "@/components/ui/switch";
 import { envVariableSchema } from "@envyron/lib/validation";
 import { useFetchVariables, useSyncVariables } from "@/hooks/use-variable";
 import type { EnumVariableTypes, EnvVariableSchema } from "@envyron/types";
+import { VARIABLE_TYPES } from "@envyron/lib";
 
 type Props = {
   serviceId: string;
@@ -114,8 +115,8 @@ export default function ServiceBody({ serviceId }: Props) {
                         Key *
                       </label>
                       <Input
-                        placeholder="API_KEY"
-                        className="bg-[#0B1437] border-gray-600 text-white placeholder:text-gray-500 focus:border-[#006D77] focus:ring-[#006D77] font-mono"
+                        placeholder="VARIABLE_KEY"
+                        className="bg-[#0B1437] border-gray-600 text-white placeholder:text-gray-500 focus:border-[#006D77] focus:ring-[#006D77] font-mono uppercase"
                         {...register(`env_variables.${index}.key`)}
                       />
                     </div>
@@ -128,7 +129,7 @@ export default function ServiceBody({ serviceId }: Props) {
                         Default Value
                       </label>
                       <Input
-                        placeholder="your-api-key-here"
+                        placeholder="DEFAULT_VALUE"
                         className="bg-[#0B1437] border-gray-600 text-white placeholder:text-gray-500 focus:border-[#006D77] focus:ring-[#006D77] font-mono"
                         {...register(`env_variables.${index}.defaultValue`)}
                       />
@@ -178,48 +179,15 @@ export default function ServiceBody({ serviceId }: Props) {
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent className="bg-[#0B1437] border-gray-700">
-                            <SelectItem
-                              value="STRING"
-                              className="text-white hover:bg-[#006D77]/20"
-                            >
-                              string
-                            </SelectItem>
-                            <SelectItem
-                              value="INT"
-                              className="text-white hover:bg-[#006D77]/20"
-                            >
-                              int
-                            </SelectItem>
-                            <SelectItem
-                              value="FLOAT"
-                              className="text-white hover:bg-[#006D77]/20"
-                            >
-                              float
-                            </SelectItem>
-                            <SelectItem
-                              value="BOOLEAN"
-                              className="text-white hover:bg-[#006D77]/20"
-                            >
-                              boolean
-                            </SelectItem>
-                            <SelectItem
-                              value="JSON"
-                              className="text-white hover:bg-[#006D77]/20"
-                            >
-                              JSON
-                            </SelectItem>
-                            <SelectItem
-                              value="URL"
-                              className="text-white hover:bg-[#006D77]/20"
-                            >
-                              URL
-                            </SelectItem>
-                            <SelectItem
-                              value="EMAIL"
-                              className="text-white hover:bg-[#006D77]/20"
-                            >
-                              email
-                            </SelectItem>
+                            {VARIABLE_TYPES.map((type) => (
+                              <SelectItem
+                                key={type}
+                                value={type}
+                                className="text-white hover:bg-[#006D77]"
+                              >
+                                {type.toLowerCase()}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                         <Button
