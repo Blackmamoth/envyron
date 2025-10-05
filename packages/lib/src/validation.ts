@@ -20,7 +20,10 @@ export const envVariableSchema = z.object({
   env_variables: z
     .array(
       z.object({
-        key: z.string().min(1),
+        key: z
+          .string()
+          .min(1, "key is required")
+          .regex(/^[^-\s]*$/, "Key cannot contain dashes or spaces"),
         defaultValue: z.string().optional(),
         required: z.boolean().default(false),
         type: envVariableTypeEnum,

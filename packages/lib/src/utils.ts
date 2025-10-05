@@ -1,4 +1,4 @@
-import type { EnumVariableTypes } from "@envyron/types";
+import type { EnumVariableTypes, EnvVariable } from "@envyron/types";
 
 export function toCamelCase(text: string): string {
   if (text.length === 0) return text;
@@ -35,4 +35,24 @@ export function getVariableValueByType(value: string, type: EnumVariableTypes) {
     default:
       return `'${value}'`;
   }
+}
+
+export function hasType(
+  serviceArr: string[],
+  serviceVariables: Record<string, EnvVariable[]>,
+  variableConfigs: Record<
+    string,
+    Record<string, { included: boolean; required: boolean }>
+  >,
+  type: EnumVariableTypes,
+) {
+  return serviceArr.some((serviceId) => {
+    const envVariables = serviceVariables[serviceId];
+    if (!envVariables) return false;
+
+    return envVariables.some((variable) => {
+      const isIncluded = variableConfigs[serviceId]?.[variable.key]?.included;
+      return isIncluded && variable.type === type;
+    });
+  });
 }

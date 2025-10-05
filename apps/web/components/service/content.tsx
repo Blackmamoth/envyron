@@ -35,7 +35,7 @@ export default function ServiceBody({ serviceId }: Props) {
     handleSubmit,
     reset,
     getValues,
-    formState: { isValid, isDirty },
+    formState: { isValid, isDirty, errors },
   } = useForm({
     resolver: zodResolver(envVariableSchema),
     defaultValues: {
@@ -119,6 +119,11 @@ export default function ServiceBody({ serviceId }: Props) {
                         className="bg-[#0B1437] border-gray-600 text-white placeholder:text-gray-500 focus:border-[#006D77] focus:ring-[#006D77] font-mono uppercase"
                         {...register(`env_variables.${index}.key`)}
                       />
+                      {errors?.env_variables?.[index]?.key && isDirty && (
+                        <p className="text-[var(--envyron-error)] text-sm mt-1">
+                          {errors?.env_variables?.[index]?.key.message}
+                        </p>
+                      )}
                     </div>
 
                     <div className="space-y-2">

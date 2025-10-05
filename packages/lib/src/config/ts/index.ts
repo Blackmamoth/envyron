@@ -1,6 +1,6 @@
 import type { EnumVariableTypes, EnvVariable, Service } from "@envyron/types";
-import { getVariableValueByType } from "../utils";
-import { DURATION_REGEX, FILEPATH_REGEX } from "../constants";
+import { getVariableValueByType } from "../../utils";
+import { DURATION_REGEX, FILEPATH_REGEX } from "../../constants";
 
 export function getLanguageType(type: EnumVariableTypes): string {
   switch (type) {
@@ -11,7 +11,7 @@ export function getLanguageType(type: EnumVariableTypes): string {
     case "FLOAT":
       return "z.coerce.number()";
     case "BOOLEAN":
-      return "z.coerce.boolean()";
+      return 'z.enum(["true", "false"]).transform((val) => val === "true")';
     case "URL":
       return "z.url()";
     case "EMAIL":
