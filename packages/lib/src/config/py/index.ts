@@ -5,7 +5,7 @@ import {
   toPascalCase,
   toSnakeCase,
 } from "../../utils";
-import { customTypes } from "./customTypeStrings.ts";
+import { customTypes } from "./customTypeStrings";
 
 const imports = [
   "from typing import Any, Annotated",
